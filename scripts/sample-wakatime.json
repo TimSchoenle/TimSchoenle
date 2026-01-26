@@ -1,0 +1,85 @@
+{
+    "data": {
+        "categories": [
+            {
+                "digital": "26:33:04",
+                "hours": 26,
+                "minutes": 33,
+                "name": "Coding",
+                "percent": 100,
+                "text": "26 hrs 33 mins",
+                "total_seconds": 95584.225577
+            }
+        ],
+        "daily_average": 13398,
+        "daily_average_including_other_language": 13655,
+        "days_including_holidays": 7,
+        "dependencies": [],
+        "editors": [
+            {
+                "digital": "25:32:05",
+                "hours": 25,
+                "minutes": 32,
+                "name": "VS Code",
+                "percent": 96.18,
+                "text": "25 hrs 32 mins",
+                "total_seconds": 91925.325577
+            }
+        ],
+        "end": "2024-03-24T22:59:59Z",
+        "holidays": 0,
+        "human_readable_daily_average": "3 hrs 43 mins",
+        "human_readable_daily_average_including_other_language": "3 hrs 47 mins",
+        "human_readable_range": "last 7 days",
+        "human_readable_total": "26 hrs 33 mins",
+        "human_readable_total_including_other_language": "26 hrs 33 mins",
+        "id": "550e5055-6677-4488-8899-565544445555",
+        "is_already_updating": false,
+        "is_coding_activity_visible": true,
+        "is_including_today": false,
+        "is_other_usage_visible": true,
+        "is_stuck": false,
+        "is_up_to_date": true,
+        "languages": [
+            {
+                "digital": "0:56:59",
+                "hours": 0,
+                "minutes": 56,
+                "name": "TypeScript",
+                "percent": 3.58,
+                "text": "56 mins",
+                "total_seconds": 3419.068943
+            },
+            {
+                "digital": "0:02:59",
+                "hours": 0,
+                "minutes": 2,
+                "name": "JSON",
+                "percent": 0.19,
+                "text": "2 mins",
+                "total_seconds": 179.808064
+            }
+        ],
+        "operating_systems": [
+            {
+                "digital": "26:33:04",
+                "hours": 26,
+                "minutes": 33,
+                "name": "Mac",
+                "percent": 100,
+                "text": "26 hrs 33 mins",
+                "total_seconds": 95584.225577
+            }
+        ],
+        "percent_calculated": 100,
+        "range": "last_7_days",
+        "start": "2024-03-17T23:00:00Z",
+        "status": "ok",
+        "timeout": 15,
+        "total_seconds": 95584.225577,
+        "total_seconds_including_other_language": 95584.225577,
+        "user_id": "00000000-0000-0000-0000-000000000000",
+        "username": "User",
+        "writes_only": false
+    }
+}

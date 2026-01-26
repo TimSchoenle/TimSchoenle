@@ -1,0 +1,64 @@
+# Node dependencies
+/node_modules
+
+# Next.js build output
+/.next/
+/out/
+/build
+/dist
+
+# Next.js / mono-repo caches
+/.parcel-cache
+/.turbo
+/.cache
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+logs
+*.log
+.lighthouseci/**
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Coverage / test output
+/coverage
+.nyc_output
+
+# IDEs and editors
+/.idea/
+*.iml
+*.iws
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+.node_repl_history
+.eslintcache
+storybook-static
+messages/*.d.json.ts
+reports/
+playwright-report/
+test-results/
+tests/.cache
+public/resume/**
+
+# Serwist
+public/sw*
+public/swe-worker*

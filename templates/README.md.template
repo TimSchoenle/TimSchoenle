@@ -1,0 +1,26 @@
+# Hi 👋, I'm {{NAME}}
+
+I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
+
+- 👨‍💻 All of my projects are available at [{{GITHUB_URL}}]({{GITHUB_URL}})
+- 💬 Ask me about **{{ASK_ME_ABOUT}}**
+- 📫 How to reach me **{{EMAIL}}**
+- 🌐 Check out my portfolio at **[{{WEBSITE}}]({{WEBSITE}})**
+
+### 🛠 Tech Stack
+
+**Languages**
+
+{{SKILLS_LANGUAGES}}
+
+**Frameworks & Libraries**
+
+{{SKILLS_FRAMEWORKS}}
+
+**Infrastructure & Tools**
+
+{{SKILLS_INFRASTRUCTURE}}
+
+### ⏰ Weekly Stats
+
+{{WAKATIME_STATS}}
