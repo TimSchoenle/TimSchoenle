@@ -1,0 +1,13 @@
+{
+  "name": "timschoenle",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "generate-readme": "bun run scripts/generate-readme.ts",
+    "gen-types": "bun run scripts/generate-types.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "quicktype-core": "23.2.6"
+  }
+}
