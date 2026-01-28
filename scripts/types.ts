@@ -19,16 +19,25 @@ export interface Skills {
 export interface Framework {
     confidence: number;
     name:       string;
+    renderArea: RenderArea[];
+}
+
+export enum RenderArea {
+    Resume = "resume",
+    Section = "section",
+    TechRadar = "tech-radar",
 }
 
 export interface Infrastructure {
     confidence: number;
     name:       string;
+    renderArea: RenderArea[];
 }
 
 export interface Language {
     confidence: number;
     name:       string;
+    renderArea: RenderArea[];
 }
 
 export interface Socials {

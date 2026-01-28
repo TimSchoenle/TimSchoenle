@@ -59,8 +59,8 @@ async function main() {
         profileTypes.lines.join("\n") + "\n\n" +
         wakaResponseTypes.lines.join("\n");
 
-    await write("scripts/types.d.ts", content);
-    console.log("Wrote scripts/types.d.ts");
+    await write("scripts/types.ts", content);
+    console.log("Wrote scripts/types.ts");
 }
 
 if (import.meta.main) {
