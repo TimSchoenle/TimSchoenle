@@ -1,5 +1,5 @@
 import { file, write } from "bun";
-import type { Profile, WakaTime } from "./types";
+import {type Profile, RenderArea, type WakaTime} from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
@@ -92,10 +92,11 @@ async function main() {
     console.log("Processing template...");
     const template = await file("templates/README.md.template").text();
 
-    const confidenceThreshold = 0.7;
-    const processSkills = (skills: { name: string; confidence: number }[]) =>
+    const confidenceThreshold = 0.55;
+    const processSkills = (skills: { name: string; confidence: number; renderArea: RenderArea[] }[]) =>
         skills
             .filter(s => s.confidence >= confidenceThreshold)
+            .filter(s => s.renderArea.includes(RenderArea.Resume))
             .sort((a, b) => b.confidence - a.confidence)
             .map(s => {
                 return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(s.name.toLowerCase().replaceAll(/\s+/g, ''))}&logoColor=white)`;
