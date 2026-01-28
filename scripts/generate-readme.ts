@@ -92,7 +92,7 @@ async function main() {
     console.log("Processing template...");
     const template = await file("templates/README.md.template").text();
 
-    const confidenceThreshold = 0.7;
+    const confidenceThreshold = 0.55;
     const processSkills = (skills: { name: string; confidence: number; renderArea: RenderArea[] }[]) =>
         skills
             .filter(s => s.confidence >= confidenceThreshold)
