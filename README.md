@@ -24,7 +24,7 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 21 January 2026 - To: 27 January 2026
+From: 20 January 2026 - To: 27 January 2026
 
 Total Time: 15 hrs 55 mins
 
