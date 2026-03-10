@@ -24,13 +24,13 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 28 February 2026 - To: 7 March 2026
+From: 1 March 2026 - To: 8 March 2026
 
-Total Time: 6 hrs 10 mins
+Total Time: 4 hrs 38 mins
 
-YAML                  2 hrs 37 mins    ███████████░░░░░░░░░░░░░░   42.62 %
-Kotlin                1 hr 12 mins     █████░░░░░░░░░░░░░░░░░░░░   19.52 %
-Docker                35 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    9.62 %
-Markdown              27 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    7.47 %
-Bash                  19 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    5.13 %
+Kotlin                1 hr 12 mins     ██████░░░░░░░░░░░░░░░░░░░   25.99 %
+YAML                  1 hr 7 mins      ██████░░░░░░░░░░░░░░░░░░░   24.21 %
+Docker                35 mins          ███░░░░░░░░░░░░░░░░░░░░░░   12.81 %
+Markdown              26 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    9.61 %
+Bash                  19 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    6.84 %
 ```
