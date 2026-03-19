@@ -24,13 +24,13 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 9 March 2026 - To: 16 March 2026
+From: 10 March 2026 - To: 17 March 2026
 
-Total Time: 14 hrs 6 mins
+Total Time: 13 hrs 49 mins
 
-YAML                  7 hrs 56 mins    ██████████████░░░░░░░░░░░   56.33 %
-Kotlin                1 hr 36 mins     ███░░░░░░░░░░░░░░░░░░░░░░   11.41 %
-Java                  1 hr 29 mins     ███░░░░░░░░░░░░░░░░░░░░░░   10.58 %
-JSON                  1 hr 17 mins     ██░░░░░░░░░░░░░░░░░░░░░░░    9.14 %
-Rust                  54 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    6.40 %
+YAML                  6 hrs 23 mins    ████████████░░░░░░░░░░░░░   46.24 %
+Java                  2 hrs 18 mins    ████░░░░░░░░░░░░░░░░░░░░░   16.70 %
+Kotlin                1 hr 41 mins     ███░░░░░░░░░░░░░░░░░░░░░░   12.28 %
+JSON                  1 hr 23 mins     ███░░░░░░░░░░░░░░░░░░░░░░   10.08 %
+Rust                  54 mins          ██░░░░░░░░░░░░░░░░░░░░░░░    6.57 %
 ```
