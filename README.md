@@ -24,9 +24,9 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 6 May 2026 - To: 13 May 2026
+From: 7 May 2026 - To: 13 May 2026
 
-Total Time: 20 hrs 14 mins
+Total Time: 13 hrs 4 mins
 
 Java                  18 hrs 28 mins   ██████████████████████░░░   87.96 %
 Other                 45 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    3.60 %
