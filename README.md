@@ -24,13 +24,13 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 8 May 2026 - To: 15 May 2026
+From: 10 May 2026 - To: 17 May 2026
 
-Total Time: 17 hrs 59 mins
+Total Time: 20 hrs 45 mins
 
-Java                  15 hrs 49 mins   █████████████████████░░░░   84.54 %
-Other                 43 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    3.84 %
-Properties            33 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.99 %
-Rust                  30 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.70 %
-Kotlin                25 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.28 %
+Java                  18 hrs 31 mins   █████████████████████░░░░   84.60 %
+Other                 1 hr 8 mins      █░░░░░░░░░░░░░░░░░░░░░░░░    5.24 %
+Kotlin                32 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.48 %
+Properties            32 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.44 %
+Rust                  30 mins          █░░░░░░░░░░░░░░░░░░░░░░░░    2.31 %
 ```
