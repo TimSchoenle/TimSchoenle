@@ -24,13 +24,13 @@ I'm currently working as a **Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 9 August 2026 - To: 16 August 2026
+From: 10 August 2026 - To: 17 August 2026
 
-Total Time: 69 hrs 28 mins
+Total Time: 66 hrs 58 mins
 
-YAML                  22 hrs 16 mins   ████████░░░░░░░░░░░░░░░░░   31.36 %
-Rust                  13 hrs 35 mins   █████░░░░░░░░░░░░░░░░░░░░   19.15 %
-Markdown              12 hrs 20 mins   ████░░░░░░░░░░░░░░░░░░░░░   17.39 %
-Bash                  3 hrs 13 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    4.54 %
-Terraform             2 hrs 36 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    3.67 %
+YAML                  22 hrs 29 mins   ████████░░░░░░░░░░░░░░░░░   32.84 %
+Markdown              12 hrs 29 mins   █████░░░░░░░░░░░░░░░░░░░░   18.24 %
+Rust                  12 hrs 10 mins   ████░░░░░░░░░░░░░░░░░░░░░   17.78 %
+Makefile              2 hrs 36 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    3.81 %
+Terraform             2 hrs 36 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    3.80 %
 ```
