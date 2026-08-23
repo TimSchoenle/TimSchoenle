@@ -1,9 +1,33 @@
+/**
+ * Renders `README.md` from a template and two live APIs.
+ *
+ * @remarks
+ * The rendered file is the GitHub profile page. `.github/workflows/update-profile.yml` runs this
+ * at midnight UTC and commits whatever changed, so an edit made to `README.md` by hand survives until
+ * the next run and no longer. The layout lives in `templates/README.md.template`; adding a section
+ * means a placeholder there and a `replaceAll` in {@link main}.
+ *
+ * The badge rows are the `RenderArea.Resume` skills from `https://tim-schoenle.de/api/v1/profile`,
+ * the same list the site's own resume renders.
+ *
+ * @packageDocumentation
+ */
+
 import { file, write } from "bun";
 import {type Profile, RenderArea, type WakaTime} from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
 
+/**
+ * Fetches the profile the portfolio site publishes.
+ *
+ * @remarks
+ * The body is cast, not validated: a field renamed upstream is published into the README as the
+ * literal text `undefined`.
+ *
+ * @throws If the endpoint answers with a non-2xx status.
+ */
 async function fetchProfileData(): Promise<Profile> {
     const response = await fetch(PROFILE_API_URL);
     if (!response.ok) {
@@ -12,6 +36,11 @@ async function fetchProfileData(): Promise<Profile> {
     return response.json().then(data => data as Profile);
 }
 
+/**
+ * Fetches the last seven days of tracked coding time for the account that owns the API key.
+ *
+ * @throws If `WAKATIME_API_KEY` is unset, or the endpoint answers with a non-2xx status.
+ */
 async function fetchWakaTimeData(): Promise<WakaTime> {
     const apiKey = process.env.WAKATIME_API_KEY;
     if (!apiKey) {
@@ -26,6 +55,7 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
     return response.json().then(data => data as WakaTime);
 }
 
+/** Draws `percent`, on a scale of 0 to 100, as a bar of `length` characters. */
 function generateProgressBar(percent: number, length: number = 25): string {
     const filledChars = Math.round((length * percent) / 100);
     const emptyChars = length - filledChars;
@@ -36,6 +66,12 @@ function generateProgressBar(percent: number, length: number = 25): string {
     return full.repeat(filledChars) + empty.repeat(emptyChars);
 }
 
+/**
+ * Formats the first five entries of `stats.data.languages` as a fenced `txt` block, one row each.
+ *
+ * @remarks
+ * Names come out at exactly 20 characters and durations at 14.
+ */
 function formatWakaTimeStats(stats: WakaTime): string {
     const { start, end, human_readable_total, languages } = stats.data;
 
@@ -49,7 +85,7 @@ function formatWakaTimeStats(stats: WakaTime): string {
     const topLanguages = languages.slice(0, 5);
 
     for (const lang of topLanguages) {
-        // Enforce fixed width to prevent misalignment
+        // Fixed width in both branches: the bars start at the same column whatever the name is.
         let name = lang.name;
         if (name.length > 20) {
             name = name.substring(0, 19) + "…";
@@ -75,10 +111,21 @@ function formatWakaTimeStats(stats: WakaTime): string {
     return output;
 }
 
+/**
+ * Writes `README.md`, resolving it and the template against the process working directory.
+ *
+ * @remarks
+ * WakaTime is allowed to fail: its section becomes an HTML comment and the page is written anyway.
+ * A failed profile fetch aborts before anything is written.
+ *
+ * @throws If the profile cannot be fetched, or `templates/README.md.template` is missing.
+ */
 async function main() {
     console.log("Fetching data...");
     const [profile, wakaTime] = await Promise.all([
         fetchProfileData(),
+        // A week of time tracking is worth less than the rest of the page, so an outage here
+        // degrades one section instead of failing the daily run.
         fetchWakaTimeData().catch(e => {
             console.error("Error fetching WakaTime:", e);
             return null;
@@ -92,6 +139,7 @@ async function main() {
     console.log("Processing template...");
     const template = await file("templates/README.md.template").text();
 
+    // Applies on top of the resume filter below; it was 0.7 before that filter existed.
     const confidenceThreshold = 0.55;
     const processSkills = (skills: { name: string; confidence: number; renderArea: RenderArea[] }[]) =>
         skills

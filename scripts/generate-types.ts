@@ -1,3 +1,16 @@
+/**
+ * Regenerates `scripts/types.ts` from the profile schema and one recorded WakaTime response.
+ *
+ * @remarks
+ * The two halves come from different places because the two APIs do. tim-schoenle.de publishes a
+ * JSON Schema, so `Profile` is exact and is fetched on every run. WakaTime publishes none, so
+ * `WakaTime` is inferred from `scripts/sample-wakatime.json`. That sample is committed rather than
+ * fetched, so those types change in a reviewed commit instead of tracking whatever the API returned
+ * the morning someone ran the generator.
+ *
+ * @packageDocumentation
+ */
+
 import {
     quicktype,
     InputData,
@@ -8,6 +21,7 @@ import {
 import { write, file } from "bun";
 import type {LanguageName} from "quicktype-core/dist/language/types";
 
+/** Renders a JSON Schema as declarations, naming the root type `typeName`. */
 async function quicktypeJSONSchema(targetLanguage: LanguageName, typeName: string, jsonSchemaString: string) {
     const schemaInput = new JSONSchemaInput(new FetchingJSONSchemaStore());
     await schemaInput.addSource({ name: typeName, schema: jsonSchemaString });
@@ -17,12 +31,21 @@ async function quicktypeJSONSchema(targetLanguage: LanguageName, typeName: strin
     return await quicktype({
         inputData,
         lang: targetLanguage,
+        // Only the declarations are wanted. Without this, quicktype also emits its runtime
+        // converters, which would be dead code behind two `as` casts in generate-readme.ts.
         rendererOptions: {
             "just-types": "true"
         }
     });
 }
 
+/**
+ * Infers declarations from a single sample document, naming the root type `typeName`.
+ *
+ * @remarks
+ * Every property the sample carries comes out required, and one it happens to omit does not appear
+ * at all. An empty array in the sample yields `any[]`.
+ */
 async function quicktypeJSON(targetLanguage: LanguageName, typeName: string, jsonString: string) {
     const jsonInput = jsonInputForTargetLanguage(targetLanguage);
     await jsonInput.addSource({
@@ -40,6 +63,11 @@ async function quicktypeJSON(targetLanguage: LanguageName, typeName: string, jso
     });
 }
 
+/**
+ * Overwrites `scripts/types.ts`, discarding anything edited there by hand.
+ *
+ * @throws If the schema cannot be fetched, or `scripts/sample-wakatime.json` is missing.
+ */
 async function main() {
     console.log("Fetching Profile schema...");
     const response = await fetch("https://tim-schoenle.de/api/v1/profile/schema");

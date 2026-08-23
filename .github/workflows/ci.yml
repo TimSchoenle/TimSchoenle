@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    permissions:
+      contents: read # to fetch code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repo
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: TimSchoenle/actions/actions/bun/setup-cached@e531be1a898653adee13a3c10b1ae4c1eb6487d0 # actions-bun-setup-cached-v1.1.3
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      # eslint.config.mjs holds the doc comment gate: tsdoc/syntax plus the jsdoc rules that require
+      # a comment on every top-level function under scripts/. --max-warnings 0 is what makes
+      # require-jsdoc, which the standard configures as a warning, fail the run.
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
