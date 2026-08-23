@@ -3,6 +3,22 @@ import {type Profile, RenderArea, type WakaTime} from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
+const README_PATH = "README.md";
+
+// shields.io resolves `logo=` against simple-icons slugs, and a slug it does not know silently
+// costs the badge its icon. The lowercase-and-strip-spaces default gets most names right; these
+// are the ones where the icon lives under a different slug than the display name spells.
+const LOGO_SLUG_OVERRIDES: Record<string, string> = {
+    "java": "openjdk",
+    "webassembly (wasm)": "webassembly",
+    "argocd": "argo",
+    "timescaledb": "timescale",
+};
+
+function logoSlug(name: string): string {
+    const lower = name.toLowerCase();
+    return LOGO_SLUG_OVERRIDES[lower] ?? lower.replaceAll(/\s+/g, '');
+}
 
 async function fetchProfileData(): Promise<Profile> {
     const response = await fetch(PROFILE_API_URL);
@@ -75,6 +91,19 @@ function formatWakaTimeStats(stats: WakaTime): string {
     return output;
 }
 
+// A WakaTime outage used to empty the section: the run still succeeded, still committed, and the
+// page lost its stats until the API came back. Reuse the block already on the page instead, so an
+// outage costs a stale week rather than a hole.
+async function lastRenderedWakaTimeStats(): Promise<string> {
+    const readme = file(README_PATH);
+    if (!(await readme.exists())) {
+        return "<!-- WakaTime API unavailable -->";
+    }
+
+    const previous = (await readme.text()).match(/^```txt\r?\n[\s\S]*?^```/m);
+    return previous?.[0] ?? "<!-- WakaTime API unavailable -->";
+}
+
 async function main() {
     console.log("Fetching data...");
     const [profile, wakaTime] = await Promise.all([
@@ -99,21 +128,20 @@ async function main() {
             .filter(s => s.renderArea.includes(RenderArea.Resume))
             .sort((a, b) => b.confidence - a.confidence)
             .map(s => {
-                return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(s.name.toLowerCase().replaceAll(/\s+/g, ''))}&logoColor=white)`;
+                return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(logoSlug(s.name))}&logoColor=white)`;
             })
             .join(" ");
 
     const languages = processSkills(profile.skills.languages);
     const frameworks = processSkills(profile.skills.frameworks);
     const infrastructure = processSkills(profile.skills.infrastructure);
-    const wakaTimeStats = wakaTime ? formatWakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->";
-    const topSkill = profile.skills.languages.toSorted((a, b) => b.confidence - a.confidence)[0]?.name || "Java";
+    const wakaTimeStats = wakaTime ? formatWakaTimeStats(wakaTime) : await lastRenderedWakaTimeStats();
+    const linkedIn = profile.socials.linkedin;
 
     const readme = template
-        .replaceAll("{{NAME}}", profile.name)
+        .replaceAll("{{FULL_NAME}}", profile.fullName)
         .replaceAll("{{EMAIL}}", profile.email)
-        .replaceAll("{{GITHUB_URL}}", profile.socials.github)
-        .replaceAll("{{ASK_ME_ABOUT}}", topSkill)
+        .replaceAll("{{SOCIAL_LINKS}}", linkedIn ? ` · [LinkedIn](${linkedIn})` : "")
         .replaceAll("{{SKILLS_LANGUAGES}}", languages)
         .replaceAll("{{SKILLS_FRAMEWORKS}}", frameworks)
         .replaceAll("{{SKILLS_INFRASTRUCTURE}}", infrastructure)
@@ -123,7 +151,7 @@ async function main() {
         .replaceAll("{{WEBSITE}}", profile.website);
 
     console.log("Writing README.md...");
-    await write("README.md", readme);
+    await write(README_PATH, readme);
     console.log("Done!");
 }
 
