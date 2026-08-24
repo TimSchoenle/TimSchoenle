@@ -1,14 +1,20 @@
 /**
- * Renders `README.md` from a template and two live APIs.
+ * Renders the GitHub profile page from `templates/README.md.template`.
  *
  * @remarks
- * The rendered file is the GitHub profile page. `.github/workflows/update-profile.yml` runs this
- * at midnight UTC and commits whatever changed, so an edit made to `README.md` by hand survives until
- * the next run and no longer. The layout lives in `templates/README.md.template`; adding a section
- * means a placeholder there and a `replaceAll` in {@link main}.
+ * `README.md` in this repository is the profile page, and this script is its only writer.
+ * `.github/workflows/update-profile.yml` runs the script at midnight UTC and commits whatever
+ * changed, so an edit made to `README.md` by hand lasts until the next run.
  *
- * The badge rows are the `RenderArea.Resume` skills from `https://tim-schoenle.de/api/v1/profile`,
- * the same list the site's own resume renders.
+ * The profile at `tim-schoenle.de/api/v1/profile` is the document the portfolio site renders its
+ * own resume from, and the badge rows are its `RenderArea.Resume` entries, so a skill added on
+ * the site reaches the page without a change here. WakaTime is a separate account behind a
+ * separate key, and its section is allowed to fail: a week of tracked time is worth less than
+ * the rest of the page.
+ *
+ * Layout is not in this file. A new section on the page means a placeholder in the template and a
+ * matching `replaceAll` in {@link main}. Nothing checks that the two agree, and a placeholder with
+ * no `replaceAll` is committed to the profile verbatim.
  *
  * @packageDocumentation
  */
@@ -20,10 +26,10 @@ const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
 
 /**
- * Fetches the profile the portfolio site publishes.
+ * Fetches the profile document the portfolio site publishes.
  *
  * @remarks
- * The body is cast, not validated: a field renamed upstream is published into the README as the
+ * The body is cast, not validated. A field the API stops sending reaches the profile page as the
  * literal text `undefined`.
  *
  * @throws If the endpoint answers with a non-2xx status.
@@ -37,9 +43,9 @@ async function fetchProfileData(): Promise<Profile> {
 }
 
 /**
- * Fetches the last seven days of tracked coding time for the account that owns the API key.
+ * Fetches seven days of tracked coding time for the account behind `WAKATIME_API_KEY`.
  *
- * @throws If `WAKATIME_API_KEY` is unset, or the endpoint answers with a non-2xx status.
+ * @throws If `WAKATIME_API_KEY` is unset or empty, or the endpoint answers with a non-2xx status.
  */
 async function fetchWakaTimeData(): Promise<WakaTime> {
     const apiKey = process.env.WAKATIME_API_KEY;
@@ -55,7 +61,10 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
     return response.json().then(data => data as WakaTime);
 }
 
-/** Draws `percent`, on a scale of 0 to 100, as a bar of `length` characters. */
+/**
+ * Draws `percent`, on a scale of 0 to 100, as a bar exactly `length` characters wide, `█` filled
+ * and `░` empty.
+ */
 function generateProgressBar(percent: number, length: number = 25): string {
     const filledChars = Math.round((length * percent) / 100);
     const emptyChars = length - filledChars;
@@ -67,10 +76,8 @@ function generateProgressBar(percent: number, length: number = 25): string {
 }
 
 /**
- * Formats the first five entries of `stats.data.languages` as a fenced `txt` block, one row each.
- *
- * @remarks
- * Names come out at exactly 20 characters and durations at 14.
+ * Formats `stats.data` as a fenced `txt` block: the date range, the total, then one row for each
+ * of the first five languages.
  */
 function formatWakaTimeStats(stats: WakaTime): string {
     const { start, end, human_readable_total, languages } = stats.data;
@@ -85,7 +92,8 @@ function formatWakaTimeStats(stats: WakaTime): string {
     const topLanguages = languages.slice(0, 5);
 
     for (const lang of topLanguages) {
-        // Fixed width in both branches: the bars start at the same column whatever the name is.
+        // Both branches leave the field at the same width, so every bar starts at the same column
+        // however long the language name is.
         let name = lang.name;
         if (name.length > 20) {
             name = name.substring(0, 19) + "…";
@@ -112,11 +120,13 @@ function formatWakaTimeStats(stats: WakaTime): string {
 }
 
 /**
- * Writes `README.md`, resolving it and the template against the process working directory.
+ * Writes `README.md` from the template, the profile, and the WakaTime section when that call
+ * answered.
  *
  * @remarks
- * WakaTime is allowed to fail: its section becomes an HTML comment and the page is written anyway.
- * A failed profile fetch aborts before anything is written.
+ * Both the template and the output are resolved against the process working directory, so this
+ * runs from the repository root and nowhere else. A WakaTime failure leaves an HTML comment where
+ * its section would be; a profile failure aborts before `README.md` is touched.
  *
  * @throws If the profile cannot be fetched, or `templates/README.md.template` is missing.
  */
@@ -124,8 +134,6 @@ async function main() {
     console.log("Fetching data...");
     const [profile, wakaTime] = await Promise.all([
         fetchProfileData(),
-        // A week of time tracking is worth less than the rest of the page, so an outage here
-        // degrades one section instead of failing the daily run.
         fetchWakaTimeData().catch(e => {
             console.error("Error fetching WakaTime:", e);
             return null;
@@ -139,7 +147,6 @@ async function main() {
     console.log("Processing template...");
     const template = await file("templates/README.md.template").text();
 
-    // Applies on top of the resume filter below; it was 0.7 before that filter existed.
     const confidenceThreshold = 0.55;
     const processSkills = (skills: { name: string; confidence: number; renderArea: RenderArea[] }[]) =>
         skills
@@ -155,6 +162,7 @@ async function main() {
     const frameworks = processSkills(profile.skills.frameworks);
     const infrastructure = processSkills(profile.skills.infrastructure);
     const wakaTimeStats = wakaTime ? formatWakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->";
+    // Reads the unfiltered list, so the winner can be a language no badge above it shows.
     const topSkill = profile.skills.languages.toSorted((a, b) => b.confidence - a.confidence)[0]?.name || "Java";
 
     const readme = template

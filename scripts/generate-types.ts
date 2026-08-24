@@ -2,11 +2,14 @@
  * Regenerates `scripts/types.ts` from the profile schema and one recorded WakaTime response.
  *
  * @remarks
- * The two halves come from different places because the two APIs do. tim-schoenle.de publishes a
- * JSON Schema, so `Profile` is exact and is fetched on every run. WakaTime publishes none, so
- * `WakaTime` is inferred from `scripts/sample-wakatime.json`. That sample is committed rather than
- * fetched, so those types change in a reviewed commit instead of tracking whatever the API returned
- * the morning someone ran the generator.
+ * The two halves of `types.ts` come from different places because the two APIs do. tim-schoenle.de
+ * publishes a JSON Schema, so `Profile` is exact and is refetched on every run. WakaTime publishes
+ * none, so `WakaTime` is inferred from `scripts/sample-wakatime.json`. That sample is committed
+ * rather than fetched, which keeps the inferred half changing in a reviewed commit instead of
+ * tracking whatever the API returned on the morning someone ran the generator.
+ *
+ * Nothing runs this in CI and nothing compares its output against the committed file, so
+ * `types.ts` can be stale. Run `bun run gen-types` after the profile schema changes.
  *
  * @packageDocumentation
  */
@@ -21,7 +24,7 @@ import {
 import { write, file } from "bun";
 import type {LanguageName} from "quicktype-core/dist/language/types";
 
-/** Renders a JSON Schema as declarations, naming the root type `typeName`. */
+/** Renders `jsonSchemaString` as `targetLanguage` declarations, naming the root type `typeName`. */
 async function quicktypeJSONSchema(targetLanguage: LanguageName, typeName: string, jsonSchemaString: string) {
     const schemaInput = new JSONSchemaInput(new FetchingJSONSchemaStore());
     await schemaInput.addSource({ name: typeName, schema: jsonSchemaString });
@@ -31,8 +34,9 @@ async function quicktypeJSONSchema(targetLanguage: LanguageName, typeName: strin
     return await quicktype({
         inputData,
         lang: targetLanguage,
-        // Only the declarations are wanted. Without this, quicktype also emits its runtime
-        // converters, which would be dead code behind two `as` casts in generate-readme.ts.
+        // Without this, quicktype also emits its runtime converters. generate-readme.ts casts the
+        // response bodies rather than converting them, so the converters would be dead code in a
+        // file nobody edits.
         rendererOptions: {
             "just-types": "true"
         }
@@ -40,11 +44,12 @@ async function quicktypeJSONSchema(targetLanguage: LanguageName, typeName: strin
 }
 
 /**
- * Infers declarations from a single sample document, naming the root type `typeName`.
+ * Infers `targetLanguage` declarations from `jsonString` alone, naming the root type `typeName`.
  *
  * @remarks
- * Every property the sample carries comes out required, and one it happens to omit does not appear
- * at all. An empty array in the sample yields `any[]`.
+ * Inference sees one document, so every property in it comes out required and a property the API
+ * can omit does not appear at all. An empty array becomes `any[]`, and an ISO timestamp becomes
+ * `Date`, which `JSON.parse` never returns.
  */
 async function quicktypeJSON(targetLanguage: LanguageName, typeName: string, jsonString: string) {
     const jsonInput = jsonInputForTargetLanguage(targetLanguage);

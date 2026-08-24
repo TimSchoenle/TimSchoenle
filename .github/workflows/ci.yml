@@ -13,11 +13,11 @@ concurrency:
 permissions: {}
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & Typecheck
-    permissions:
-      contents: read # to fetch code
+  lint:
+    name: Lint and Typecheck
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
@@ -37,9 +37,8 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
-      # eslint.config.mjs holds the doc comment gate: tsdoc/syntax plus the jsdoc rules that require
-      # a comment on every top-level function under scripts/. --max-warnings 0 is what makes
-      # require-jsdoc, which the standard configures as a warning, fail the run.
+      # The doc comment gate. eslint.config.mjs holds it and --max-warnings 0, set in the lint
+      # script, is what makes jsdoc/require-jsdoc fail the run rather than print.
       - name: Lint
         run: bun run lint
 
