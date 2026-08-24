@@ -1,9 +1,39 @@
+/**
+ * Renders the GitHub profile page from `templates/README.md.template`.
+ *
+ * @remarks
+ * `README.md` in this repository is the profile page, and this script is its only writer.
+ * `.github/workflows/update-profile.yml` runs the script at midnight UTC and commits whatever
+ * changed, so an edit made to `README.md` by hand lasts until the next run.
+ *
+ * The profile at `tim-schoenle.de/api/v1/profile` is the document the portfolio site renders its
+ * own resume from, and the badge rows are its `RenderArea.Resume` entries, so a skill added on
+ * the site reaches the page without a change here. WakaTime is a separate account behind a
+ * separate key, and its section is allowed to fail: a week of tracked time is worth less than
+ * the rest of the page.
+ *
+ * Layout is not in this file. A new section on the page means a placeholder in the template and a
+ * matching `replaceAll` in {@link main}. Nothing checks that the two agree, and a placeholder with
+ * no `replaceAll` is committed to the profile verbatim.
+ *
+ * @packageDocumentation
+ */
+
 import { file, write } from "bun";
 import {type Profile, RenderArea, type WakaTime} from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
 
+/**
+ * Fetches the profile document the portfolio site publishes.
+ *
+ * @remarks
+ * The body is cast, not validated. A field the API stops sending reaches the profile page as the
+ * literal text `undefined`.
+ *
+ * @throws If the endpoint answers with a non-2xx status.
+ */
 async function fetchProfileData(): Promise<Profile> {
     const response = await fetch(PROFILE_API_URL);
     if (!response.ok) {
@@ -12,6 +42,11 @@ async function fetchProfileData(): Promise<Profile> {
     return response.json().then(data => data as Profile);
 }
 
+/**
+ * Fetches seven days of tracked coding time for the account behind `WAKATIME_API_KEY`.
+ *
+ * @throws If `WAKATIME_API_KEY` is unset or empty, or the endpoint answers with a non-2xx status.
+ */
 async function fetchWakaTimeData(): Promise<WakaTime> {
     const apiKey = process.env.WAKATIME_API_KEY;
     if (!apiKey) {
@@ -26,6 +61,10 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
     return response.json().then(data => data as WakaTime);
 }
 
+/**
+ * Draws `percent`, on a scale of 0 to 100, as a bar exactly `length` characters wide, `█` filled
+ * and `░` empty.
+ */
 function generateProgressBar(percent: number, length: number = 25): string {
     const filledChars = Math.round((length * percent) / 100);
     const emptyChars = length - filledChars;
@@ -36,6 +75,10 @@ function generateProgressBar(percent: number, length: number = 25): string {
     return full.repeat(filledChars) + empty.repeat(emptyChars);
 }
 
+/**
+ * Formats `stats.data` as a fenced `txt` block: the date range, the total, then one row for each
+ * of the first five languages.
+ */
 function formatWakaTimeStats(stats: WakaTime): string {
     const { start, end, human_readable_total, languages } = stats.data;
 
@@ -49,7 +92,8 @@ function formatWakaTimeStats(stats: WakaTime): string {
     const topLanguages = languages.slice(0, 5);
 
     for (const lang of topLanguages) {
-        // Enforce fixed width to prevent misalignment
+        // Both branches leave the field at the same width, so every bar starts at the same column
+        // however long the language name is.
         let name = lang.name;
         if (name.length > 20) {
             name = name.substring(0, 19) + "…";
@@ -75,6 +119,17 @@ function formatWakaTimeStats(stats: WakaTime): string {
     return output;
 }
 
+/**
+ * Writes `README.md` from the template, the profile, and the WakaTime section when that call
+ * answered.
+ *
+ * @remarks
+ * Both the template and the output are resolved against the process working directory, so this
+ * runs from the repository root and nowhere else. A WakaTime failure leaves an HTML comment where
+ * its section would be; a profile failure aborts before `README.md` is touched.
+ *
+ * @throws If the profile cannot be fetched, or `templates/README.md.template` is missing.
+ */
 async function main() {
     console.log("Fetching data...");
     const [profile, wakaTime] = await Promise.all([
@@ -107,6 +162,7 @@ async function main() {
     const frameworks = processSkills(profile.skills.frameworks);
     const infrastructure = processSkills(profile.skills.infrastructure);
     const wakaTimeStats = wakaTime ? formatWakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->";
+    // Reads the unfiltered list, so the winner can be a language no badge above it shows.
     const topSkill = profile.skills.languages.toSorted((a, b) => b.confidence - a.confidence)[0]?.name || "Java";
 
     const readme = template
