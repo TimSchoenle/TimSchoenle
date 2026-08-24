@@ -4,9 +4,8 @@
  * @remarks
  * The two halves of `types.ts` come from different places because the two APIs do. tim-schoenle.de
  * publishes a JSON Schema, so `Profile` is exact and is refetched on every run. WakaTime publishes
- * none, so `WakaTime` is inferred from `scripts/sample-wakatime.json`. That sample is committed
- * rather than fetched, which keeps the inferred half changing in a reviewed commit instead of
- * tracking whatever the API returned on the morning someone ran the generator.
+ * none, so `WakaTime` is inferred from `scripts/sample-wakatime.json`. The sample is committed and
+ * never refetched, so the inferred half moves only when someone updates that file.
  *
  * Nothing runs this in CI and nothing compares its output against the committed file, so
  * `types.ts` can be stale. Run `bun run gen-types` after the profile schema changes.

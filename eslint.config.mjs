@@ -9,9 +9,8 @@ export default tseslint.config(
     ignores: ['node_modules/', 'scripts/types.ts'],
   },
 
-  // The doc comment gate from TimSchoenle/actions docs/doc-comments/TYPESCRIPT.md. No other rules
-  // are configured here: this is the only lint the repository runs, and mixing a style ruleset in
-  // would make a failure ambiguous about which one broke.
+  // The doc comment gate from TimSchoenle/actions docs/doc-comments/TYPESCRIPT.md. Nothing else is
+  // configured: a style ruleset next to it would make a red build ambiguous about which one broke.
   {
     files: ['scripts/**/*.ts'],
     languageOptions: { parser: tseslint.parser },
@@ -29,7 +28,10 @@ export default tseslint.config(
       // The standard scopes this to exported declarations. Neither script exports anything, and
       // both are entry points invoked through `bun run`, so the module is the surface and every
       // top-level function in it is covered instead. `--max-warnings 0` in the `lint` script is
-      // what turns the severity the standard specifies into a failing build.
+      // what turns the severity the standard specifies into a failing build. The two contexts
+      // match nothing today: every interface in the repository is in the generated
+      // `scripts/types.ts`, ignored above. They are here for a type written by hand under
+      // `scripts/` later.
       'jsdoc/require-jsdoc': [
         'warn',
         {

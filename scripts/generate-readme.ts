@@ -3,14 +3,13 @@
  *
  * @remarks
  * `README.md` in this repository is the profile page, and this script is its only writer.
- * `.github/workflows/update-profile.yml` runs the script at midnight UTC and commits whatever
- * changed, so an edit made to `README.md` by hand lasts until the next run.
+ * `.github/workflows/update-profile.yml` runs it at midnight UTC and commits whatever changed, so
+ * an edit made to `README.md` by hand lasts until the next run.
  *
- * The profile at `tim-schoenle.de/api/v1/profile` is the document the portfolio site renders its
- * own resume from, and the badge rows are its `RenderArea.Resume` entries, so a skill added on
- * the site reaches the page without a change here. WakaTime is a separate account behind a
- * separate key, and its section is allowed to fail: a week of tracked time is worth less than
- * the rest of the page.
+ * A skill reaches a badge row by being marked `resume` in the profile document at
+ * `tim-schoenle.de/api/v1/profile` and scoring at least 0.55 confidence, so the rows change
+ * without an edit to this script or the template. WakaTime needs a key; the profile API does not.
+ * Its section is allowed to fail: a week of tracked time is worth less than the rest of the page.
  *
  * Layout is not in this file. A new section on the page means a placeholder in the template and a
  * matching `replaceAll` in {@link main}. Nothing checks that the two agree, and a placeholder with
@@ -64,6 +63,9 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
 /**
  * Draws `percent`, on a scale of 0 to 100, as a bar exactly `length` characters wide, `█` filled
  * and `░` empty.
+ *
+ * @remarks
+ * The filled count is rounded, so at the default width a language under 2 percent draws an empty bar.
  */
 function generateProgressBar(percent: number, length: number = 25): string {
     const filledChars = Math.round((length * percent) / 100);
@@ -75,10 +77,7 @@ function generateProgressBar(percent: number, length: number = 25): string {
     return full.repeat(filledChars) + empty.repeat(emptyChars);
 }
 
-/**
- * Formats `stats.data` as a fenced `txt` block: the date range, the total, then one row for each
- * of the first five languages.
- */
+/** Formats `stats.data` as a fenced `txt` block: the date range, the total, then the first five languages. */
 function formatWakaTimeStats(stats: WakaTime): string {
     const { start, end, human_readable_total, languages } = stats.data;
 
