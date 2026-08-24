@@ -4,10 +4,17 @@
   "private": true,
   "scripts": {
     "generate-readme": "bun run scripts/generate-readme.ts",
-    "gen-types": "bun run scripts/generate-types.ts"
+    "gen-types": "bun run scripts/generate-types.ts",
+    "lint": "eslint scripts --max-warnings 0",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "quicktype-core": "23.2.6"
+    "eslint": "9.39.1",
+    "eslint-plugin-jsdoc": "62.1.0",
+    "eslint-plugin-tsdoc": "0.5.2",
+    "quicktype-core": "23.2.6",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.46.4"
   }
 }
