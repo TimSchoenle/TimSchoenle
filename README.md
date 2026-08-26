@@ -1,6 +1,6 @@
 # Hi 👋, I'm Tim
 
-I'm currently working as a **Software Developer** in **Germany**.
+I'm currently working as a **Senior Software Developer** in **Germany**.
 
 - 👨‍💻 All of my projects are available at [https://github.com/timschoenle](https://github.com/timschoenle)
 - 💬 Ask me about **Java**
@@ -19,18 +19,18 @@ I'm currently working as a **Software Developer** in **Germany**.
 
 **Infrastructure & Tools**
 
-![Docker](https://img.shields.io/badge/Docker-24292e?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/Kubernetes-24292e?style=flat-square&logo=kubernetes&logoColor=white) ![ArgoCD](https://img.shields.io/badge/ArgoCD-24292e?style=flat-square&logo=argocd&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?style=flat-square&logo=postgresql&logoColor=white) ![Helm](https://img.shields.io/badge/Helm-24292e?style=flat-square&logo=helm&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-24292e?style=flat-square&logo=linux&logoColor=white) ![TimescaleDB](https://img.shields.io/badge/TimescaleDB-24292e?style=flat-square&logo=timescaledb&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-24292e?style=flat-square&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-24292e?style=flat-square&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-24292e?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/Kubernetes-24292e?style=flat-square&logo=kubernetes&logoColor=white) ![ArgoCD](https://img.shields.io/badge/ArgoCD-24292e?style=flat-square&logo=argocd&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?style=flat-square&logo=postgresql&logoColor=white) ![Helm](https://img.shields.io/badge/Helm-24292e?style=flat-square&logo=helm&logoColor=white) ![Talos Linux](https://img.shields.io/badge/Talos%20Linux-24292e?style=flat-square&logo=taloslinux&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-24292e?style=flat-square&logo=linux&logoColor=white) ![TimescaleDB](https://img.shields.io/badge/TimescaleDB-24292e?style=flat-square&logo=timescaledb&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-24292e?style=flat-square&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-24292e?style=flat-square&logo=redis&logoColor=white)
 
 ### ⏰ Weekly Stats
 
 ```txt
-From: 15 August 2026 - To: 22 August 2026
+From: 17 August 2026 - To: 24 August 2026
 
-Total Time: 55 hrs 41 mins
+Total Time: 47 hrs 41 mins
 
-YAML                  14 hrs 20 mins   ██████░░░░░░░░░░░░░░░░░░░   25.25 %
-Rust                  12 hrs 57 mins   ██████░░░░░░░░░░░░░░░░░░░   22.80 %
-Markdown              10 hrs 46 mins   █████░░░░░░░░░░░░░░░░░░░░   18.96 %
-Python                7 hrs 10 mins    ███░░░░░░░░░░░░░░░░░░░░░░   12.63 %
-Text                  1 hr 55 mins     █░░░░░░░░░░░░░░░░░░░░░░░░    3.38 %
+Markdown              11 hrs           ██████░░░░░░░░░░░░░░░░░░░   22.89 %
+YAML                  10 hrs 7 mins    █████░░░░░░░░░░░░░░░░░░░░   21.04 %
+Python                8 hrs 30 mins    ████░░░░░░░░░░░░░░░░░░░░░   17.69 %
+Rust                  7 hrs 18 mins    ████░░░░░░░░░░░░░░░░░░░░░   15.18 %
+HTML                  3 hrs 22 mins    ██░░░░░░░░░░░░░░░░░░░░░░░    7.01 %
 ```
