@@ -15,7 +15,7 @@ I'm currently working as a **Senior Software Developer** in **Germany**.
 
 **Frameworks & Libraries**
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-24292e?style=flat-square&logo=springboot&logoColor=white) ![PaperMC](https://img.shields.io/badge/PaperMC-24292e?style=flat-square&logo=papermc&logoColor=white) ![gRPC](https://img.shields.io/badge/gRPC-24292e?style=flat-square&logo=grpc&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-24292e?style=flat-square&logo=next.js&logoColor=white) ![React](https://img.shields.io/badge/React-24292e?style=flat-square&logo=react&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-24292e?style=flat-square&logo=tailwindcss&logoColor=white) ![Yew](https://img.shields.io/badge/Yew-24292e?style=flat-square&logo=yew&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-24292e?style=flat-square&logo=node.js&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-24292e?style=flat-square&logo=springboot&logoColor=white) ![PaperMC](https://img.shields.io/badge/PaperMC-24292e?style=flat-square&logo=papermc&logoColor=white) ![gRPC](https://img.shields.io/badge/gRPC-24292e?style=flat-square&logo=grpc&logoColor=white) ![Next.js](https://img.shields.io/badge/Next.js-24292e?style=flat-square&logo=next.js&logoColor=white) ![React](https://img.shields.io/badge/React-24292e?style=flat-square&logo=react&logoColor=white) ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-24292e?style=flat-square&logo=tailwindcss&logoColor=white) ![Dioxus](https://img.shields.io/badge/Dioxus-24292e?style=flat-square&logo=dioxus&logoColor=white) ![Axum](https://img.shields.io/badge/Axum-24292e?style=flat-square&logo=axum&logoColor=white) ![Node.js](https://img.shields.io/badge/Node.js-24292e?style=flat-square&logo=node.js&logoColor=white)
 
 **Infrastructure & Tools**
 
@@ -24,13 +24,13 @@ I'm currently working as a **Senior Software Developer** in **Germany**.
 ### ⏰ Weekly Stats
 
 ```txt
-From: 14 September 2026 - To: 21 September 2026
+From: 15 September 2026 - To: 22 September 2026
 
-Total Time: 24 hrs 55 mins
+Total Time: 26 hrs 53 mins
 
-PowerShell            4 hrs 24 mins    ████░░░░░░░░░░░░░░░░░░░░░   16.27 %
-Markdown              3 hrs 55 mins    ████░░░░░░░░░░░░░░░░░░░░░   14.51 %
-YAML                  3 hrs 12 mins    ███░░░░░░░░░░░░░░░░░░░░░░   11.87 %
-Rust                  2 hrs 42 mins    ███░░░░░░░░░░░░░░░░░░░░░░   10.04 %
-Other                 2 hrs 6 mins     ██░░░░░░░░░░░░░░░░░░░░░░░    7.81 %
+Markdown              4 hrs 37 mins    ████░░░░░░░░░░░░░░░░░░░░░   15.69 %
+PowerShell            4 hrs 24 mins    ████░░░░░░░░░░░░░░░░░░░░░   14.93 %
+Rust                  4 hrs 2 mins     ███░░░░░░░░░░░░░░░░░░░░░░   13.72 %
+YAML                  3 hrs 53 mins    ███░░░░░░░░░░░░░░░░░░░░░░   13.20 %
+Other                 2 hrs 35 mins    ██░░░░░░░░░░░░░░░░░░░░░░░    8.79 %
 ```
