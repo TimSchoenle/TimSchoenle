@@ -1,4 +1,4 @@
-# Hi 👋, I'm Tim
+# Hi, I'm Tim
 
 I'm currently working as a **Senior Software Developer** in **Germany**.
 
@@ -7,11 +7,11 @@ I'm currently working as a **Senior Software Developer** in **Germany**.
 - 📫 How to reach me **contact@tim-schoenle.de**
 - 🌐 Check out my portfolio at **[https://tim-schoenle.de](https://tim-schoenle.de)**
 
-### 🛠 Tech Stack
+## Tech Stack
 
 **Languages**
 
-![Java](https://img.shields.io/badge/Java-24292e?style=flat-square&logo=java&logoColor=white) ![SQL](https://img.shields.io/badge/SQL-24292e?style=flat-square&logo=sql&logoColor=white) ![Rust](https://img.shields.io/badge/Rust-24292e?style=flat-square&logo=rust&logoColor=white) ![WebAssembly (WASM)](https://img.shields.io/badge/WebAssembly%20(WASM)-24292e?style=flat-square&logo=webassembly(wasm)&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-24292e?style=flat-square&logo=typescript&logoColor=white) ![Kotlin](https://img.shields.io/badge/Kotlin-24292e?style=flat-square&logo=kotlin&logoColor=white)
+![Java](https://img.shields.io/badge/Java-24292e?style=flat-square&logo=java&logoColor=white) ![SQL](https://img.shields.io/badge/SQL-24292e?style=flat-square&logo=sql&logoColor=white) ![Rust](https://img.shields.io/badge/Rust-24292e?style=flat-square&logo=rust&logoColor=white) ![WebAssembly (WASM)](https://img.shields.io/badge/WebAssembly%20(WASM)-24292e?style=flat-square&logo=webassembly&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-24292e?style=flat-square&logo=typescript&logoColor=white) ![Kotlin](https://img.shields.io/badge/Kotlin-24292e?style=flat-square&logo=kotlin&logoColor=white)
 
 **Frameworks & Libraries**
 
@@ -19,9 +19,9 @@ I'm currently working as a **Senior Software Developer** in **Germany**.
 
 **Infrastructure & Tools**
 
-![Docker](https://img.shields.io/badge/Docker-24292e?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/Kubernetes-24292e?style=flat-square&logo=kubernetes&logoColor=white) ![ArgoCD](https://img.shields.io/badge/ArgoCD-24292e?style=flat-square&logo=argocd&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?style=flat-square&logo=postgresql&logoColor=white) ![Helm](https://img.shields.io/badge/Helm-24292e?style=flat-square&logo=helm&logoColor=white) ![Talos Linux](https://img.shields.io/badge/Talos%20Linux-24292e?style=flat-square&logo=taloslinux&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-24292e?style=flat-square&logo=linux&logoColor=white) ![TimescaleDB](https://img.shields.io/badge/TimescaleDB-24292e?style=flat-square&logo=timescaledb&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-24292e?style=flat-square&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-24292e?style=flat-square&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-24292e?style=flat-square&logo=docker&logoColor=white) ![Kubernetes](https://img.shields.io/badge/Kubernetes-24292e?style=flat-square&logo=kubernetes&logoColor=white) ![ArgoCD](https://img.shields.io/badge/ArgoCD-24292e?style=flat-square&logo=argo&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-24292e?style=flat-square&logo=postgresql&logoColor=white) ![Helm](https://img.shields.io/badge/Helm-24292e?style=flat-square&logo=helm&logoColor=white) ![Talos Linux](https://img.shields.io/badge/Talos%20Linux-24292e?style=flat-square&logo=talos&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-24292e?style=flat-square&logo=linux&logoColor=white) ![TimescaleDB](https://img.shields.io/badge/TimescaleDB-24292e?style=flat-square&logo=timescale&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-24292e?style=flat-square&logo=mongodb&logoColor=white) ![Redis](https://img.shields.io/badge/Redis-24292e?style=flat-square&logo=redis&logoColor=white)
 
-### ⏰ Weekly Stats
+## Weekly Stats
 
 ```txt
 From: 17 September 2026 - To: 24 September 2026

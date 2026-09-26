@@ -1,4 +1,4 @@
-# Hi 👋, I'm {{NAME}}
+# Hi, I'm {{NAME}}
 
 I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
 
@@ -7,7 +7,7 @@ I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
 - 📫 How to reach me **{{EMAIL}}**
 - 🌐 Check out my portfolio at **[{{WEBSITE}}]({{WEBSITE}})**
 
-### 🛠 Tech Stack
+## Tech Stack
 
 **Languages**
 
@@ -21,6 +21,6 @@ I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
 
 {{SKILLS_INFRASTRUCTURE}}
 
-### ⏰ Weekly Stats
+## Weekly Stats
 
 {{WAKATIME_STATS}}
