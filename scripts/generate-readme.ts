@@ -77,6 +77,31 @@ function generateProgressBar(percent: number, length: number = 25): string {
     return full.repeat(filledChars) + empty.repeat(emptyChars);
 }
 
+/**
+ * Skill names whose Simple Icons slug is not their own name lowercased with the spaces removed.
+ * Shields draws a badge without a logo, and without an error, for a slug it does not know.
+ */
+const LOGO_SLUG_OVERRIDES: Readonly<Record<string, string>> = {
+    "ArgoCD": "argo",
+    "Talos Linux": "talos",
+    "TimescaleDB": "timescale",
+};
+
+/**
+ * Derives the Shields `logo` slug for a skill badge.
+ *
+ * @remarks
+ * A parenthesised qualifier is dropped first, so `WebAssembly (WASM)` looks up `webassembly`. A
+ * name with no Simple Icons entry at all, such as `Java` or `Axum`, still renders as a plain badge.
+ */
+function logoSlug(name: string): string {
+    const override = LOGO_SLUG_OVERRIDES[name];
+    if (override) {
+        return override;
+    }
+    return name.replace(/\s*\(.*\)\s*$/, "").toLowerCase().replaceAll(/\s+/g, "");
+}
+
 /** Formats `stats.data` as a fenced `txt` block: the date range, the total, then the first five languages. */
 function formatWakaTimeStats(stats: WakaTime): string {
     const { start, end, human_readable_total, languages } = stats.data;
@@ -153,7 +178,7 @@ async function main() {
             .filter(s => s.renderArea.includes(RenderArea.Resume))
             .sort((a, b) => b.confidence - a.confidence)
             .map(s => {
-                return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(s.name.toLowerCase().replaceAll(/\s+/g, ''))}&logoColor=white)`;
+                return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(logoSlug(s.name))}&logoColor=white)`;
             })
             .join(" ");
 
