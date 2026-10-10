@@ -24,13 +24,13 @@ I'm currently working as a **Senior Software Developer** in **Germany**.
 ## Weekly Stats
 
 ```txt
-From: 29 September 2026 - To: 6 October 2026
+From: 1 October 2026 - To: 8 October 2026
 
-Total Time: 73 hrs 12 mins
+Total Time: 67 hrs 48 mins
 
-Python                33 hrs 46 mins   ████████████░░░░░░░░░░░░░   46.06 %
-Java                  16 hrs 30 mins   ██████░░░░░░░░░░░░░░░░░░░   22.53 %
-Markdown              11 hrs 36 mins   ████░░░░░░░░░░░░░░░░░░░░░   15.84 %
-Bash                  3 hrs 43 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    5.09 %
-Text                  2 hrs 28 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    3.37 %
+Python                27 hrs 57 mins   ██████████░░░░░░░░░░░░░░░   41.11 %
+Java                  17 hrs 40 mins   ██████░░░░░░░░░░░░░░░░░░░   25.99 %
+Markdown              12 hrs 29 mins   █████░░░░░░░░░░░░░░░░░░░░   18.36 %
+Bash                  2 hrs 57 mins    █░░░░░░░░░░░░░░░░░░░░░░░░    4.34 %
+Kotlin                1 hr 54 mins     █░░░░░░░░░░░░░░░░░░░░░░░░    2.80 %
 ```
