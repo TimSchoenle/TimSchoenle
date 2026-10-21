@@ -17,6 +17,7 @@
 import { file, write } from "bun";
 import { parseProfile } from "./profile";
 import { renderReadme } from "./render";
+import { parseWakaTime } from "./wakatime";
 import type { Profile, WakaTime } from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
@@ -92,7 +93,7 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
     if (!response.ok) {
         throw new Error(`Failed to fetch WakaTime data: ${await describeFailedResponse(response)}`);
     }
-    return response.json().then(data => data as WakaTime);
+    return parseWakaTime(await response.json());
 }
 
 /**

@@ -93,9 +93,17 @@ function skillBadge(name: string): string {
     return `![${escapeLinkText(name)}](https://img.shields.io/badge/${shieldsSegment(name)}-${BADGE_COLOR}?style=flat-square${logo})`;
 }
 
+/**
+ * Percent-encodes the characters that end a markdown link destination or split it into a title.
+ * The result is the same URL to a browser.
+ */
+export function escapeLinkDestination(href: string): string {
+    return href.replaceAll(/[()<>\s]/g, char => `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`);
+}
+
 /** Renders a badge reading `label` that links to `href`. */
 function linkBadge(label: string, href: string): string {
-    return `[![${escapeLinkText(label)}](https://img.shields.io/badge/${shieldsSegment(label)}-${BADGE_COLOR}?style=for-the-badge)](${href})`;
+    return `[![${escapeLinkText(label)}](https://img.shields.io/badge/${shieldsSegment(label)}-${BADGE_COLOR}?style=for-the-badge)](${escapeLinkDestination(href)})`;
 }
 
 /** Orders skills by confidence, highest first. Ties keep the API's order. */
