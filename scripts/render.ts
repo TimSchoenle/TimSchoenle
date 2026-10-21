@@ -9,38 +9,14 @@
  * @packageDocumentation
  */
 
-import * as simpleIcons from "simple-icons";
-import { RenderArea, type Language, type Profile, type WakaTime } from "./types";
-
-/** One skill entry. The three generated skill interfaces are structurally identical. */
-type Skill = Language;
-
-/** A Simple Icons entry, as far as badge rendering needs it. */
-interface Icon {
-    readonly title: string;
-    readonly slug: string;
-}
-
-/** Skills below this confidence get no badge and no mention. */
-const CONFIDENCE_THRESHOLD = 0.55;
-
-/** The render area that decides which skills get a badge. The rest of the threshold-passing skills go under "Also worked with". */
-const BADGE_AREA = RenderArea.Resume;
+import { byConfidence, skillGroups } from "./skills";
+import { TECH_STACK_ASSETS, TECH_STACK_WIDTH } from "./tech-stack";
+import type { Profile, WakaTime } from "./types";
 
 /** How many skills "Ask me about" names. */
 const ASK_ME_ABOUT_COUNT = 3;
 
 const BADGE_COLOR = "24292e";
-
-/**
- * Skill names whose Simple Icons title is a different name for the same thing. Matching is by
- * title, case-insensitive, after a trailing parenthesised qualifier is dropped.
- */
-const ICON_TITLE_ALIASES: Readonly<Record<string, string>> = {
-    "ArgoCD": "Argo",
-    "Talos Linux": "Talos",
-    "TimescaleDB": "Timescale",
-};
 
 /** WakaTime "languages" that are prose or configuration, not code. */
 const NON_CODE_LANGUAGES: ReadonlySet<string> = new Set([
@@ -52,22 +28,6 @@ const WAKATIME_LANGUAGE_COUNT = 5;
 
 /** Bar width of the WakaTime stats block, in characters. */
 const PROGRESS_BAR_LENGTH = 25;
-
-/** Every Simple Icons entry, keyed by lowercased title. */
-const ICONS_BY_TITLE: ReadonlyMap<string, Icon> = new Map(
-    Object.values(simpleIcons).map((icon: Icon) => [icon.title.toLowerCase(), icon]),
-);
-
-/**
- * Finds the Simple Icons entry for a skill name.
- *
- * @returns The entry, or `undefined` when Simple Icons has none, in which case the badge is drawn
- * without a logo.
- */
-export function findIcon(name: string): Icon | undefined {
-    const title = ICON_TITLE_ALIASES[name] ?? name.replace(/\s*\(.*\)\s*$/, "");
-    return ICONS_BY_TITLE.get(title.toLowerCase());
-}
 
 /**
  * Encodes text for one segment of a Shields static badge path.
@@ -84,13 +44,6 @@ export function shieldsSegment(text: string): string {
 /** Escapes the characters that end or nest markdown link and image text. */
 function escapeLinkText(text: string): string {
     return text.replaceAll(/[\\[\]]/g, "\\$&");
-}
-
-/** Renders one skill as a Shields badge, with its Simple Icons logo when one exists. */
-function skillBadge(name: string): string {
-    const icon = findIcon(name);
-    const logo = icon ? `&logo=${encodeURIComponent(icon.slug)}&logoColor=white` : "";
-    return `![${escapeLinkText(name)}](https://img.shields.io/badge/${shieldsSegment(name)}-${BADGE_COLOR}?style=flat-square${logo})`;
 }
 
 /** Percent-encodings for the two destination delimiters `encodeURIComponent` does not encode. */
@@ -111,16 +64,6 @@ function linkBadge(label: string, href: string): string {
     return `[![${escapeLinkText(label)}](https://img.shields.io/badge/${shieldsSegment(label)}-${BADGE_COLOR}?style=for-the-badge)](${escapeLinkDestination(href)})`;
 }
 
-/** Orders skills by confidence, highest first. Ties keep the API's order. */
-function byConfidence(skills: readonly Skill[]): Skill[] {
-    return skills.toSorted((a, b) => b.confidence - a.confidence);
-}
-
-/** Skills at or above {@link CONFIDENCE_THRESHOLD} that `inArea` accepts, by confidence. */
-function selectSkills(skills: readonly Skill[], inArea: boolean): Skill[] {
-    return byConfidence(skills.filter(s => s.confidence >= CONFIDENCE_THRESHOLD && s.renderArea.includes(BADGE_AREA) === inArea));
-}
-
 /** Joins items as English prose: `a`, `a and b`, `a, b and c`. */
 function joinProse(items: readonly string[]): string {
     if (items.length <= 1) {
@@ -139,18 +82,35 @@ function contactBadges(profile: Profile): string {
     return badges.join(" ");
 }
 
-/** Lists the threshold-passing skills that have no badge, as a collapsed block, or nothing when there are none. */
-function alsoWorkedWith(profile: Profile): string {
-    const rows = [
-        ["Languages", profile.skills.languages],
-        ["Frameworks & Libraries", profile.skills.frameworks],
-        ["Infrastructure & Tools", profile.skills.infrastructure],
-    ] as const;
+/** Escapes text for a double-quoted HTML attribute. */
+function escapeHtmlAttribute(text: string): string {
+    return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
 
-    const lines = rows
-        .map(([label, skills]) => [label, selectSkills(skills, false)] as const)
-        .filter(([, skills]) => skills.length > 0)
-        .map(([label, skills]) => `**${label}:** ${skills.map(s => s.name).join(", ")}`);
+/**
+ * The tech stack image, switching with the viewer's GitHub theme.
+ *
+ * @remarks
+ * The `<img>` is what renderers without `<picture>` support show, and its alt text is what screen
+ * readers announce, so it names every skill the image draws.
+ */
+function techStackImage(profile: Profile): string {
+    const names = skillGroups(profile, true).flatMap(g => g.skills.map(s => s.name));
+    const alt = escapeHtmlAttribute(`Tech stack: ${names.join(", ")}`);
+    return [
+        "<picture>",
+        `  <source media="(prefers-color-scheme: dark)" srcset="${TECH_STACK_ASSETS.dark}">`,
+        `  <source media="(prefers-color-scheme: light)" srcset="${TECH_STACK_ASSETS.light}">`,
+        `  <img alt="${alt}" src="${TECH_STACK_ASSETS.light}" width="${TECH_STACK_WIDTH}">`,
+        "</picture>",
+    ].join("\n");
+}
+
+/** Lists the threshold-passing skills the image leaves out, as a collapsed block, or nothing when there are none. */
+function alsoWorkedWith(profile: Profile): string {
+    const lines = skillGroups(profile, false)
+        .filter(group => group.skills.length > 0)
+        .map(group => `**${group.label}:** ${group.skills.map(s => s.name).join(", ")}`);
 
     if (lines.length === 0) {
         return "";
@@ -229,9 +189,7 @@ export function fillTemplate(template: string, values: Readonly<Record<string, s
  * @returns The README text, ending in exactly one newline.
  */
 export function renderReadme(template: string, profile: Profile, wakaTime: WakaTime | null): string {
-    const { languages, frameworks, infrastructure } = profile.skills;
-    const badges = (skills: readonly Skill[]) => selectSkills(skills, true).map(s => skillBadge(s.name)).join(" ");
-    const topSkills = selectSkills([...languages, ...frameworks, ...infrastructure], true)
+    const topSkills = byConfidence(skillGroups(profile, true).flatMap(g => g.skills))
         .slice(0, ASK_ME_ABOUT_COUNT)
         .map(s => `**${s.name}**`);
 
@@ -241,9 +199,7 @@ export function renderReadme(template: string, profile: Profile, wakaTime: WakaT
         LOCATION: profile.location,
         ASK_ME_ABOUT: joinProse(topSkills),
         CONTACT_BADGES: contactBadges(profile),
-        SKILLS_LANGUAGES: badges(languages),
-        SKILLS_FRAMEWORKS: badges(frameworks),
-        SKILLS_INFRASTRUCTURE: badges(infrastructure),
+        TECH_STACK: techStackImage(profile),
         ALSO_WORKED_WITH: alsoWorkedWith(profile),
         WAKATIME_STATS: wakaTime ? wakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->",
     });

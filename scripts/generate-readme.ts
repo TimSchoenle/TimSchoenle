@@ -6,7 +6,9 @@
  * `.github/workflows/update-profile.yml` runs it at midnight UTC and commits whatever changed, so
  * an edit made to `README.md` by hand lasts until the next run.
  *
- * This file fetches and writes; `render.ts` decides what the page says. Skills, contact links and
+ * This file fetches and writes; `render.ts` decides what the page says and `tech-stack.ts` draws the
+ * tech stack image, one SVG per GitHub theme under `assets/`. The workflow commits those with the
+ * README. Skills, contact links and
  * "Ask me about" all come from the profile document at `tim-schoenle.de/api/v1/profile`, so the page
  * changes without an edit here. WakaTime needs a key; the profile API does not. Its section is
  * allowed to fail: a week of tracked time is worth less than the rest of the page.
@@ -14,9 +16,13 @@
  * @packageDocumentation
  */
 
+import { mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import { file, write } from "bun";
 import { parseProfile } from "./profile";
 import { renderReadme } from "./render";
+import { skillGroups } from "./skills";
+import { renderTechStack, TECH_STACK_ASSETS, type ThemeName } from "./tech-stack";
 import { parseWakaTime } from "./wakatime";
 import type { Profile, WakaTime } from "./types";
 
@@ -97,13 +103,13 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
 }
 
 /**
- * Writes `README.md` from the template, the profile, and the WakaTime section when that call
- * answered.
+ * Writes the tech stack images and `README.md` from the template, the profile, and the WakaTime
+ * section when that call answered.
  *
  * @remarks
- * Both the template and the output are resolved against the process working directory, so this
+ * The template and every output are resolved against the process working directory, so this
  * runs from the repository root and nowhere else. A WakaTime failure leaves an HTML comment where
- * its section would be; a profile failure aborts before `README.md` is touched.
+ * its section would be; a profile failure aborts before any file is touched.
  *
  * @throws If the profile cannot be fetched or fails validation, `templates/README.md.template` is
  * missing, or the template and `render.ts` disagree on placeholders.
@@ -120,8 +126,17 @@ async function main() {
 
     console.log("Rendering...");
     const template = await file("templates/README.md.template").text();
+    // Everything is rendered before anything is written, so a render error leaves every file as it was.
     const readme = renderReadme(template, profile, wakaTime);
+    const groups = skillGroups(profile, true);
+    const images = (Object.keys(TECH_STACK_ASSETS) as ThemeName[])
+        .map(theme => [TECH_STACK_ASSETS[theme], renderTechStack(groups, theme)] as const);
 
+    for (const [path, svg] of images) {
+        console.log(`Writing ${path}...`);
+        await mkdir(dirname(path), { recursive: true });
+        await write(path, svg);
+    }
     console.log("Writing README.md...");
     await write("README.md", readme);
     console.log("Done!");

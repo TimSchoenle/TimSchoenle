@@ -6,7 +6,8 @@
     "generate-readme": "bun run scripts/generate-readme.ts",
     "gen-types": "bun run scripts/generate-types.ts",
     "lint": "eslint scripts --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest",
