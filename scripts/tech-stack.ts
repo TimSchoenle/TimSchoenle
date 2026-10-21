@@ -36,10 +36,10 @@ interface Tier {
     readonly weight: number;
 }
 
-const CORE_TIER: Tier = { width: 122, height: 104, icon: 40, font: 13, weight: 600 };
-const PROFICIENT_TIER: Tier = { width: 98, height: 82, icon: 28, font: 11.5, weight: 500 };
+const CORE_TIER: Tier = { width: 96, height: 80, icon: 32, font: 12, weight: 600 };
+const PROFICIENT_TIER: Tier = { width: 78, height: 64, icon: 22, font: 10.5, weight: 500 };
 
-const CORNER_RADIUS = 12;
+const CORNER_RADIUS = 10;
 
 /** Average glyph width as a fraction of font size, for the system UI fonts the image names. */
 const GLYPH_WIDTH_RATIO = 0.56;
