@@ -163,7 +163,8 @@ describe("renderReadme", () => {
         expect(readme).not.toContain("{{");
         expect(readme).toContain(`srcset="${themedAsset("tech-stack", "dark")}"`);
         expect(readme).toContain(`<a href="mailto:contact@example.com"><picture>`);
-        expect(readme).toContain('alt="Weekly &lt;stats&gt;"');
+        expect(readme).toContain('alt="Weekly &lt;stats&gt;" src="assets/stats-light.svg" width="100%"');
+        expect(readme).toMatch(/src="assets\/tech-stack-light.svg" width="100%"/);
         expect(readme).toContain('alt="Tech stack: Java, Rust, Spring Boot, Made&lt;Up&gt;&amp;Co"');
         expect(readme).toContain("Ask me about **Java**, **Spring Boot** and **Rust**.");
     });

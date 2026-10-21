@@ -8,7 +8,7 @@
 
 ## Tech Stack
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/tech-stack-dark.svg"><img alt="Tech stack: Java, SQL, Rust, WebAssembly (WASM), TypeScript, Kotlin, Spring Boot, PaperMC, gRPC, Next.js, React, Tailwind CSS, Dioxus, Axum, Node.js, Docker, Kubernetes, ArgoCD, PostgreSQL, Helm, Talos Linux, Linux, TimescaleDB, MongoDB, Redis" src="assets/tech-stack-light.svg" width="840"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/tech-stack-dark.svg"><img alt="Tech stack: Java, SQL, Rust, WebAssembly (WASM), TypeScript, Kotlin, Spring Boot, PaperMC, gRPC, Next.js, React, Tailwind CSS, Dioxus, Axum, Node.js, Docker, Kubernetes, ArgoCD, PostgreSQL, Helm, Talos Linux, Linux, TimescaleDB, MongoDB, Redis" src="assets/tech-stack-light.svg" width="100%"></picture>
 
 <details>
 <summary>Also worked with</summary>
@@ -21,4 +21,4 @@
 
 ## Weekly Stats
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 13 October – 20 October 2026: 40 hrs 35 mins tracked. Java 8 hrs 51 mins, Python 3 hrs 47 mins, Bash 3 hrs 3 mins" src="assets/stats-light.svg" width="840"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 13 October – 20 October 2026: 40 hrs 35 mins tracked. Java 8 hrs 51 mins, Python 3 hrs 47 mins, Bash 3 hrs 3 mins" src="assets/stats-light.svg" width="100%"></picture>

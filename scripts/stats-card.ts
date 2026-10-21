@@ -15,7 +15,7 @@ import type { Category, WakaTime } from "./types";
 /** Asset name of the stats images, for `themedAsset`. */
 export const STATS_ASSET = "stats";
 
-/** Card width in pixels, the same as the tech stack image so the two line up. */
+/** Intrinsic width in pixels, the same as the tech stack image so both scale to the same size. */
 export const STATS_WIDTH = 840;
 
 /** WakaTime "languages" that are prose or configuration, not code. */

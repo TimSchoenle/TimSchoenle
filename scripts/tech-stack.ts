@@ -16,7 +16,7 @@ import { brandColour, escapeXml, FONT_STACK, iconGlyph, THEMES, type ThemeName }
 /** Asset name of the tech stack images, for `themedAsset`. */
 export const TECH_STACK_ASSET = "tech-stack";
 
-/** Image width in pixels. GitHub's README column is about this wide on desktop. */
+/** Intrinsic width in pixels. The README scales the image to its column, so this sets proportions, not size. */
 export const TECH_STACK_WIDTH = 840;
 
 /** Tile geometry for one tier. */

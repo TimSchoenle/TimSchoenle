@@ -15,8 +15,8 @@
 
 import { BUTTON_HEIGHT, buttonWidth, contactAsset, contactLinks } from "./contact-buttons";
 import { byConfidence, skillGroups } from "./skills";
-import { STATS_ASSET, STATS_WIDTH } from "./stats-card";
-import { TECH_STACK_ASSET, TECH_STACK_WIDTH } from "./tech-stack";
+import { STATS_ASSET } from "./stats-card";
+import { TECH_STACK_ASSET } from "./tech-stack";
 import { themedAsset } from "./theme";
 import type { Profile } from "./types";
 
@@ -26,11 +26,20 @@ export interface StatsImage {
     readonly alt: string;
 }
 
-/** An image's rendered size in pixels; either side may be left to the image's aspect ratio. */
+/**
+ * An image's rendered size, as HTML `width`/`height` attribute values: pixels, or a percentage of
+ * the README column. A side left out follows the image's aspect ratio.
+ */
 interface ImageSize {
-    readonly width?: number;
+    readonly width?: number | `${number}%`;
     readonly height?: number;
 }
+
+/**
+ * Width of the full-width images. They scale with GitHub's README column, so both edges line up with
+ * the headings at any page width; being SVG, they stay sharp at any size.
+ */
+const FULL_WIDTH = "100%";
 
 /** How many skills "Ask me about" names. */
 const ASK_ME_ABOUT_COUNT = 3;
@@ -96,7 +105,7 @@ function contactButtons(profile: Profile): string {
 /** The tech stack image. Its alt text names every skill the image draws. */
 function techStackImage(profile: Profile): string {
     const names = skillGroups(profile, true).flatMap(g => g.skills.map(s => s.name));
-    return themedPicture(TECH_STACK_ASSET, `Tech stack: ${names.join(", ")}`, { width: TECH_STACK_WIDTH });
+    return themedPicture(TECH_STACK_ASSET, `Tech stack: ${names.join(", ")}`, { width: FULL_WIDTH });
 }
 
 /** Lists the threshold-passing skills the image leaves out, as a collapsed block, or nothing when there are none. */
@@ -156,7 +165,7 @@ export function renderReadme(template: string, profile: Profile, stats: StatsIma
         TECH_STACK: techStackImage(profile),
         ALSO_WORKED_WITH: alsoWorkedWith(profile),
         WAKATIME_STATS: stats
-            ? themedPicture(STATS_ASSET, stats.alt, { width: STATS_WIDTH })
+            ? themedPicture(STATS_ASSET, stats.alt, { width: FULL_WIDTH })
             : "<!-- WakaTime stats unavailable -->",
     });
 
