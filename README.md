@@ -8,7 +8,50 @@
 
 ## Tech Stack
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/tech-stack-dark.svg"><img alt="Tech stack: Java, SQL, Rust, WebAssembly (WASM), TypeScript, Kotlin, Spring Boot, PaperMC, gRPC, Next.js, React, Tailwind CSS, Dioxus, Axum, Node.js, Docker, Kubernetes, ArgoCD, PostgreSQL, Helm, Talos Linux, Linux, TimescaleDB, MongoDB, Redis" src="assets/tech-stack-light.svg" width="100%"></picture>
+### Languages
+
+<p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/java-dark.svg"><img alt="Java" src="assets/skills/java-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/sql-dark.svg"><img alt="SQL" src="assets/skills/sql-light.svg" width="130" height="112"></picture>
+<br>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/rust-dark.svg"><img alt="Rust" src="assets/skills/rust-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/webassembly-wasm-dark.svg"><img alt="WebAssembly (WASM)" src="assets/skills/webassembly-wasm-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/typescript-dark.svg"><img alt="TypeScript" src="assets/skills/typescript-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/kotlin-dark.svg"><img alt="Kotlin" src="assets/skills/kotlin-light.svg" width="106" height="90"></picture>
+</p>
+
+### Frameworks & Libraries
+
+<p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/spring-boot-dark.svg"><img alt="Spring Boot" src="assets/skills/spring-boot-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/papermc-dark.svg"><img alt="PaperMC" src="assets/skills/papermc-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/grpc-dark.svg"><img alt="gRPC" src="assets/skills/grpc-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/next-js-dark.svg"><img alt="Next.js" src="assets/skills/next-js-light.svg" width="130" height="112"></picture>
+<br>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/react-dark.svg"><img alt="React" src="assets/skills/react-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/tailwind-css-dark.svg"><img alt="Tailwind CSS" src="assets/skills/tailwind-css-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/dioxus-dark.svg"><img alt="Dioxus" src="assets/skills/dioxus-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/axum-dark.svg"><img alt="Axum" src="assets/skills/axum-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/node-js-dark.svg"><img alt="Node.js" src="assets/skills/node-js-light.svg" width="106" height="90"></picture>
+</p>
+
+### Infrastructure & Tools
+
+<p>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/docker-dark.svg"><img alt="Docker" src="assets/skills/docker-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/kubernetes-dark.svg"><img alt="Kubernetes" src="assets/skills/kubernetes-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/argocd-dark.svg"><img alt="ArgoCD" src="assets/skills/argocd-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/postgresql-dark.svg"><img alt="PostgreSQL" src="assets/skills/postgresql-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/helm-dark.svg"><img alt="Helm" src="assets/skills/helm-light.svg" width="130" height="112"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/talos-linux-dark.svg"><img alt="Talos Linux" src="assets/skills/talos-linux-light.svg" width="130" height="112"></picture>
+<br>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/linux-dark.svg"><img alt="Linux" src="assets/skills/linux-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/timescaledb-dark.svg"><img alt="TimescaleDB" src="assets/skills/timescaledb-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/mongodb-dark.svg"><img alt="MongoDB" src="assets/skills/mongodb-light.svg" width="106" height="90"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/skills/redis-dark.svg"><img alt="Redis" src="assets/skills/redis-light.svg" width="106" height="90"></picture>
+</p>
+
+<sub>Large tiles: core · small tiles: proficient</sub>
 
 <details>
 <summary>Also worked with</summary>
@@ -21,4 +64,4 @@
 
 ## Weekly Stats
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 13 October – 20 October 2026: 40 hrs 35 mins tracked. Java 8 hrs 51 mins, Python 3 hrs 47 mins, Bash 3 hrs 3 mins" src="assets/stats-light.svg" width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats from the last successful update" src="assets/stats-light.svg" width="100%"></picture>

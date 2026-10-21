@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="106" height="90" viewBox="0 0 106 90" role="img" aria-labelledby="title">
+<title id="title">WebAssembly (WASM)</title>
+<style>
+text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+.tile { animation: tile-in 420ms ease-out 40ms backwards; }
+@keyframes tile-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .tile { animation: none; } }
+</style>
+<g class="tile">
+<rect x="0.5" y="0.5" width="97" height="81" rx="12" fill="#f6f8fa" stroke="#d0d7de"/>
+<g transform="translate(35 16.3)"><g transform="scale(1.1666666666666667)"><path fill="#654FF0" d="M14.745,0c0,0.042,0,0.085,0,0.129c0,1.52-1.232,2.752-2.752,2.752c-1.52,0-2.752-1.232-2.752-2.752 c0-0.045,0-0.087,0-0.129H0v24h24V0H14.745z M11.454,21.431l-1.169-5.783h-0.02l-1.264,5.783H7.39l-1.824-8.497h1.59l1.088,5.783 h0.02l1.311-5.783h1.487l1.177,5.854h0.02l1.242-5.854h1.561l-2.027,8.497H11.454z M20.209,21.431l-0.542-1.891h-2.861l-0.417,1.891 h-1.59l2.056-8.497h2.509l2.5,8.497H20.209z M17.812,15.028l-0.694,3.118h2.159l-0.796-3.118H17.812z"/></g></g>
+<text x="49" y="68" text-anchor="middle" font-size="11.5" font-weight="500" fill="#1f2328">WebAssembly</text>
+</g>
+</svg>

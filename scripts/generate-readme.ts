@@ -19,15 +19,15 @@
  * @packageDocumentation
  */
 
-import { mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, readdir, rm } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import { file, write } from "bun";
 import { parseProfile } from "./profile";
 import { contactAsset, contactLinks, renderContactButton } from "./contact-buttons";
 import { renderReadme, type StatsImage } from "./render";
 import { skillGroups } from "./skills";
 import { renderStatsCard, STATS_ASSET, statsSummary } from "./stats-card";
-import { renderTechStack, TECH_STACK_ASSET } from "./tech-stack";
+import { assertUniqueSlugs, renderSkillTile, SKILL_TILE_DIR, skillTileAsset, tileRows } from "./tech-stack";
 import { THEME_NAMES, themedAsset } from "./theme";
 import { parseWakaTime } from "./wakatime";
 import type { Profile, WakaTime } from "./types";
@@ -109,6 +109,27 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
 }
 
 /**
+ * Deletes tiles of skills that left the profile.
+ *
+ * @remarks
+ * Only files directly in `assets/skills/` are considered, and that directory holds nothing but
+ * tiles this script writes, so nothing else can be removed.
+ *
+ * @param keep - Paths written by this run, as `themedAsset` returns them.
+ */
+async function pruneSkillTiles(keep: ReadonlySet<string>): Promise<void> {
+    const dir = join("assets", SKILL_TILE_DIR);
+    const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+    for (const entry of entries) {
+        const path = `${dir}/${entry.name}`;
+        if (entry.isFile() && entry.name.endsWith(".svg") && !keep.has(path)) {
+            console.log(`Removing stale ${path}...`);
+            await rm(path);
+        }
+    }
+}
+
+/**
  * The stats card a previous run left behind, for a run where WakaTime did not answer.
  *
  * @returns The card with generic alt text, since the data behind it is gone, or `null` when no
@@ -144,10 +165,13 @@ async function main() {
     console.log("Rendering...");
     const template = await file("templates/README.md.template").text();
     // Everything is rendered before anything is written, so a render error leaves every file as it was.
-    const groups = skillGroups(profile, true);
+    const tiles = skillGroups(profile, true)
+        .flatMap(group => tileRows(group.skills))
+        .flatMap(row => row.map((skill, position) => ({ skill, position })));
+    assertUniqueSlugs(tiles.map(t => t.skill));
     const links = contactLinks(profile);
     const images: (readonly [path: string, svg: string])[] = THEME_NAMES.flatMap(theme => [
-        [themedAsset(TECH_STACK_ASSET, theme), renderTechStack(groups, theme)] as const,
+        ...tiles.map(({ skill, position }) => [themedAsset(skillTileAsset(skill), theme), renderSkillTile(skill, position, theme)] as const),
         ...links.map(link => [themedAsset(contactAsset(link), theme), renderContactButton(link, theme)] as const),
         ...(wakaTime ? [[themedAsset(STATS_ASSET, theme), renderStatsCard(wakaTime, theme)] as const] : []),
     ]);
@@ -161,6 +185,7 @@ async function main() {
     }
     console.log("Writing README.md...");
     await write("README.md", readme);
+    await pruneSkillTiles(new Set(images.map(([path]) => path)));
     console.log("Done!");
 }
 

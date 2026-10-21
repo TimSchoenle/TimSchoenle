@@ -14,9 +14,9 @@
  */
 
 import { BUTTON_HEIGHT, buttonWidth, contactAsset, contactLinks } from "./contact-buttons";
-import { byConfidence, skillGroups } from "./skills";
+import { byConfidence, skillGroups, type Skill } from "./skills";
 import { STATS_ASSET } from "./stats-card";
-import { TECH_STACK_ASSET } from "./tech-stack";
+import { skillTileAsset, tileRows, tileSize } from "./tech-stack";
 import { themedAsset } from "./theme";
 import type { Profile } from "./types";
 
@@ -36,8 +36,8 @@ interface ImageSize {
 }
 
 /**
- * Width of the full-width images. They scale with GitHub's README column, so both edges line up with
- * the headings at any page width; being SVG, they stay sharp at any size.
+ * Width of the stats card. It scales with GitHub's README column, so both edges line up with the
+ * headings at any page width; being SVG, it stays sharp at any size.
  */
 const FULL_WIDTH = "100%";
 
@@ -102,10 +102,26 @@ function contactButtons(profile: Profile): string {
         .join("\n");
 }
 
-/** The tech stack image. Its alt text names every skill the image draws. */
-function techStackImage(profile: Profile): string {
-    const names = skillGroups(profile, true).flatMap(g => g.skills.map(s => s.name));
-    return themedPicture(TECH_STACK_ASSET, `Tech stack: ${names.join(", ")}`, { width: FULL_WIDTH });
+/**
+ * The tech stack: a Markdown heading per category, then its skills as inline tiles.
+ *
+ * @remarks
+ * Each category is one paragraph: core tiles, a line break, proficient tiles. The explicit `<p>`
+ * matters: without it the rows are bare HTML blocks, and two adjacent blocks of inline images run
+ * together on one line. Inline images wrap with the page, so narrow screens get fewer tiles per row
+ * at full size. Each tile's alt text is its skill name, so a screen reader reads a list.
+ */
+function techStackSection(profile: Profile): string {
+    const row = (skills: readonly Skill[]) =>
+        skills.map(skill => themedPicture(skillTileAsset(skill), skill.name, tileSize(skill))).join("\n");
+
+    const sections = skillGroups(profile, true)
+        .filter(group => group.skills.length > 0)
+        .map(group => {
+            const rows = tileRows(group.skills).map(row);
+            return `### ${group.label}\n\n<p>\n${rows.join("\n<br>\n")}\n</p>`;
+        });
+    return [...sections, "<sub>Large tiles: core · small tiles: proficient</sub>"].join("\n\n");
 }
 
 /** Lists the threshold-passing skills the image leaves out, as a collapsed block, or nothing when there are none. */
@@ -162,7 +178,7 @@ export function renderReadme(template: string, profile: Profile, stats: StatsIma
         LOCATION: profile.location,
         ASK_ME_ABOUT: joinProse(topSkills),
         CONTACT_BUTTONS: contactButtons(profile),
-        TECH_STACK: techStackImage(profile),
+        TECH_STACK: techStackSection(profile),
         ALSO_WORKED_WITH: alsoWorkedWith(profile),
         WAKATIME_STATS: stats
             ? themedPicture(STATS_ASSET, stats.alt, { width: FULL_WIDTH })

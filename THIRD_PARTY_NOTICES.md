@@ -1,6 +1,6 @@
 # Third-party notices
 
-The tech stack images (`assets/tech-stack-*.svg`) embed logo paths from the projects below.
+The generated images under `assets/` embed logo paths from the projects below.
 `scripts/logos.ts` names the file each path was copied from. Logos drawn from
 [Simple Icons](https://github.com/simple-icons/simple-icons) are CC0-1.0 and need no notice.
 

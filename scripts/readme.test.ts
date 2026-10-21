@@ -5,7 +5,7 @@ import { buttonWidth, contactLinks, renderContactButton } from "./contact-button
 import { escapeLinkDestination, fillTemplate, renderReadme } from "./render";
 import { skillGroups } from "./skills";
 import { codeLanguages, renderStatsCard, statsSummary } from "./stats-card";
-import { renderTechStack } from "./tech-stack";
+import { assertUniqueSlugs, renderSkillTile, skillSlug, tileRows, tileSize } from "./tech-stack";
 import { brandColour, contrastRatio, themedAsset } from "./theme";
 import { RenderArea, type Language, type Profile } from "./types";
 import { parseWakaTime } from "./wakatime";
@@ -100,27 +100,34 @@ describe("icons", () => {
     });
 });
 
-describe("renderTechStack", () => {
-    const groups = skillGroups(PROFILE, true);
-    const light = renderTechStack(groups, "light");
-    const dark = renderTechStack(groups, "dark");
+describe("skill tiles", () => {
+    const [languages, frameworks] = skillGroups(PROFILE, true);
 
-    test("draws every showcased skill and nothing else", () => {
-        for (const name of ["Java", "Rust", "Spring Boot"]) {
-            expect(light).toContain(`>${name}</text>`);
-        }
-        expect(light).not.toContain("Cobol");
-        expect(light).not.toContain("Zig");
+    test("rows put core skills first and drop empty rows", () => {
+        expect(tileRows(languages!.skills).map(row => row.map(s => s.name))).toEqual([["Java"], ["Rust"]]);
+        expect(tileRows([skill("Go", 0.6)]).length).toBe(1);
     });
-    test("escapes names and omits empty groups", () => {
+    test("slugs are file-safe and keep C# apart from C", () => {
+        expect(skillSlug("Spring Boot")).toBe("spring-boot");
+        expect(skillSlug("WebAssembly (WASM)")).toBe("webassembly-wasm");
+        expect(skillSlug("C#")).toBe("c-sharp");
+        expect(skillSlug("C++")).toBe("c-plus-plus");
+        expect(() => assertUniqueSlugs([skill("Next.js", 1), skill("Next JS", 1)])).toThrow("next-js");
+    });
+    test("core tiles are larger, and the SVG size matches the declared size", () => {
+        const java = languages!.skills[0]!;
+        const rust = languages!.skills[1]!;
+        expect(tileSize(java).width).toBeGreaterThan(tileSize(rust).width);
+        expect(renderSkillTile(java, 0, "dark")).toContain(`width="${tileSize(java).width}" height="${tileSize(java).height}"`);
+    });
+    test("escapes names, staggers by position, and themes differ only in colour", () => {
+        const odd = frameworks!.skills.find(s => s.name.startsWith("Made"))!;
+        const light = renderSkillTile(odd, 2, "light");
         expect(light).toContain("Made&lt;Up&gt;&amp;Co");
         expect(light).not.toContain("Made<Up>");
-        expect(light).not.toContain("INFRASTRUCTURE");
-    });
-    test("themes differ only in colour", () => {
-        expect(light).not.toBe(dark);
+        expect(light).toContain("ease-out 80ms backwards");
         const shape = (svg: string) => svg.replaceAll(/#[0-9a-fA-F]{6}/g, "");
-        expect(shape(light)).toBe(shape(dark));
+        expect(shape(light)).toBe(shape(renderSkillTile(odd, 2, "dark")));
     });
 });
 
@@ -161,11 +168,13 @@ describe("renderReadme", () => {
         const template = await Bun.file("templates/README.md.template").text();
         const readme = renderReadme(template, PROFILE, { alt: "Weekly <stats>" });
         expect(readme).not.toContain("{{");
-        expect(readme).toContain(`srcset="${themedAsset("tech-stack", "dark")}"`);
+        expect(readme).toContain(`srcset="${themedAsset("skills/rust", "dark")}"`);
         expect(readme).toContain(`<a href="mailto:contact@example.com"><picture>`);
         expect(readme).toContain('alt="Weekly &lt;stats&gt;" src="assets/stats-light.svg" width="100%"');
-        expect(readme).toMatch(/src="assets\/tech-stack-light.svg" width="100%"/);
-        expect(readme).toContain('alt="Tech stack: Java, Rust, Spring Boot, Made&lt;Up&gt;&amp;Co"');
+        expect(readme).toContain("### Languages\n\n<p>\n");
+        expect(readme).not.toContain("### Infrastructure");
+        expect(readme).toContain('srcset="assets/skills/java-dark.svg"><img alt="Java" src="assets/skills/java-light.svg"');
+        expect(readme).toContain('alt="Made&lt;Up&gt;&amp;Co"');
         expect(readme).toContain("Ask me about **Java**, **Spring Boot** and **Rust**.");
     });
     test("marks the stats section when WakaTime is unavailable", async () => {

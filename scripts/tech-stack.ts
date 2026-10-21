@@ -1,25 +1,33 @@
 /**
- * Draws the tech stack as a self-contained SVG logo grid. Pure: no I/O, no clock.
+ * Draws one SVG tile per skill. Pure: no I/O, no clock.
  *
  * @remarks
- * One SVG per GitHub theme; `theme.ts` explains why. The background stays transparent and the
- * tiles start at the left edge, so the grid lines up with the README heading above it and sits on
- * whatever page colour GitHub uses, including the dimmed and high-contrast variants.
+ * The README lays the tiles out itself, as inline images under Markdown headings, so they wrap
+ * with the page: a phone shows fewer tiles per row at full size instead of a shrunken grid. One SVG
+ * per GitHub theme; `theme.ts` explains why.
+ *
+ * GitHub strips CSS from READMEs, so the space between inline images is whatever whitespace
+ * renders as, about 4px. Each tile carries transparent margin on its right and bottom edges to
+ * make up the rest of {@link TILE_GAP}. There is none on the left, so the first tile of every row
+ * starts flush with the heading above it.
  *
  * @packageDocumentation
  */
 
 import { baseName, findIcon } from "./icons";
-import { isCore, type Skill, type SkillGroup } from "./skills";
+import { isCore, type Skill } from "./skills";
 import { brandColour, escapeXml, FONT_STACK, iconGlyph, THEMES, type ThemeName } from "./theme";
 
-/** Asset name of the tech stack images, for `themedAsset`. */
-export const TECH_STACK_ASSET = "tech-stack";
+/** Directory, under `assets/`, that holds the tiles. The generator owns it and prunes it. */
+export const SKILL_TILE_DIR = "skills";
 
-/** Intrinsic width in pixels. The README scales the image to its column, so this sets proportions, not size. */
-export const TECH_STACK_WIDTH = 840;
+/** The gap between tiles in pixels, inline whitespace included. */
+export const TILE_GAP = 12;
 
-/** Tile geometry for one tier. */
+/** Width of the whitespace GitHub renders between two inline images. */
+const INLINE_SPACE = 4;
+
+/** Tile geometry for one tier, without the margin. */
 interface Tier {
     readonly width: number;
     readonly height: number;
@@ -31,49 +39,69 @@ interface Tier {
 const CORE_TIER: Tier = { width: 122, height: 104, icon: 40, font: 13, weight: 600 };
 const PROFICIENT_TIER: Tier = { width: 98, height: 82, icon: 28, font: 11.5, weight: 500 };
 
-/** Horizontal inset: just enough that the outermost tile borders are not clipped. */
-const PADDING = 1;
-const GAP = 12;
 const CORNER_RADIUS = 12;
-const HEADER_HEIGHT = 28;
-const GROUP_SPACING = 16;
 
 /** Average glyph width as a fraction of font size, for the system UI fonts the image names. */
 const GLYPH_WIDTH_RATIO = 0.56;
 
-/** Delay between tile fade-ins, in milliseconds. */
-const STAGGER_MS = 25;
+/** Delay between tile fade-ins within a row, in milliseconds. */
+const STAGGER_MS = 40;
 
-/** A tile placed at its final position. */
-interface PlacedTile {
-    readonly skill: Skill;
-    readonly tier: Tier;
-    readonly x: number;
-    readonly y: number;
+/** Characters a slug spells out, so `C#` and `C` do not collide. */
+const SLUG_WORDS: Readonly<Record<string, string>> = { "#": "sharp", "+": "plus" };
+
+/** The tier a skill is drawn in. */
+function tierOf(skill: Skill): Tier {
+    return isCore(skill) ? CORE_TIER : PROFICIENT_TIER;
 }
 
 /**
- * Places tiles left to right, wrapping at the content width.
- *
- * @returns The y coordinate below the last row, or `y` unchanged when `skills` is empty.
+ * A category's tiles as rows: core skills, then proficient skills, each row omitted when empty.
+ * The README and the generator both lay tiles out through this, so a tile's fade-in delay matches
+ * its place on the page.
  */
-function flow(skills: readonly Skill[], tier: Tier, y: number, out: PlacedTile[]): number {
-    if (skills.length === 0) {
-        return y;
-    }
-    const perRow = Math.max(1, Math.floor((TECH_STACK_WIDTH - 2 * PADDING + GAP) / (tier.width + GAP)));
-    skills.forEach((skill, i) => {
-        out.push({
-            skill,
-            tier,
-            x: PADDING + (i % perRow) * (tier.width + GAP),
-            y: y + Math.floor(i / perRow) * (tier.height + GAP),
-        });
-    });
-    return y + Math.ceil(skills.length / perRow) * (tier.height + GAP);
+export function tileRows(skills: readonly Skill[]): Skill[][] {
+    return [skills.filter(isCore), skills.filter(s => !isCore(s))].filter(row => row.length > 0);
 }
 
-/** Draws the logo, or a monogram when there is none, centred in a box of side `size`. */
+/** A skill name as a file name: `Spring Boot` becomes `spring-boot`, `C#` becomes `c-sharp`. */
+export function skillSlug(name: string): string {
+    return name
+        .toLowerCase()
+        .replaceAll(/[#+]/g, char => `-${SLUG_WORDS[char]}-`)
+        .replaceAll(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+/** Asset name of a skill's tile, for `themedAsset`. */
+export function skillTileAsset(skill: Skill): string {
+    return `${SKILL_TILE_DIR}/${skillSlug(skill.name)}`;
+}
+
+/**
+ * Checks that no two skills map to the same tile file.
+ *
+ * @throws Naming both skills, when two names reduce to the same slug.
+ */
+export function assertUniqueSlugs(skills: readonly Skill[]): void {
+    const seen = new Map<string, string>();
+    for (const { name } of skills) {
+        const slug = skillSlug(name);
+        const other = seen.get(slug);
+        if (other !== undefined) {
+            throw new Error(`Skills "${other}" and "${name}" would share the tile file "${slug}"`);
+        }
+        seen.set(slug, name);
+    }
+}
+
+/** A tile's full image size, margin included, as the README declares it. */
+export function tileSize(skill: Skill): { readonly width: number; readonly height: number } {
+    const { width, height } = tierOf(skill);
+    return { width: width + TILE_GAP - INLINE_SPACE, height: height + TILE_GAP - INLINE_SPACE };
+}
+
+/** Draws the logo, or a monogram when there is none, in a box of side `size` at the origin. */
 function glyph(name: string, size: number, theme: ThemeName): string {
     const icon = findIcon(name);
     if (icon) {
@@ -86,76 +114,44 @@ function glyph(name: string, size: number, theme: ThemeName): string {
         + `<text x="${size / 2}" y="${size / 2}" dy="0.35em" text-anchor="middle" font-size="${fontSize}" font-weight="700" fill="${accent}">${escapeXml(label)}</text>`;
 }
 
-/** Draws one tile: background, logo and name. */
-function tile({ skill, tier, x, y }: PlacedTile, index: number, theme: ThemeName): string {
-    const { surface: fill, border, text } = THEMES[theme];
+/**
+ * Renders one skill's tile for one theme.
+ *
+ * @remarks
+ * Core skills get a large tile, proficient skills a small one. The tile fades in after a delay set
+ * by its position in its row, so a row appears left to right; viewers who ask for reduced motion
+ * see it at once, and so does a renderer without CSS animation.
+ *
+ * @param skill - The skill to draw.
+ * @param position - The tile's index within its row, for the fade-in delay.
+ * @param theme - Which GitHub theme the colours are for.
+ * @returns A complete SVG document.
+ */
+export function renderSkillTile(skill: Skill, position: number, theme: ThemeName): string {
+    const tier = tierOf(skill);
+    const { width, height } = tileSize(skill);
+    const { surface, border, text } = THEMES[theme];
     const name = baseName(skill.name);
     // Long names shrink to fit the tile instead of overflowing it.
     const fontSize = Math.min(tier.font, (tier.width - 14) / (name.length * GLYPH_WIDTH_RATIO));
     const iconTop = (tier.height - tier.icon - fontSize - 10) / 2;
-    return `<g class="tile" style="animation-delay:${index * STAGGER_MS}ms" transform="translate(${x} ${y})">`
-        + `<rect width="${tier.width}" height="${tier.height}" rx="${CORNER_RADIUS}" fill="${fill}" stroke="${border}"/>`
-        + `<g transform="translate(${(tier.width - tier.icon) / 2} ${iconTop.toFixed(1)})">${glyph(skill.name, tier.icon, theme)}</g>`
-        + `<text x="${tier.width / 2}" y="${tier.height - 14}" text-anchor="middle" font-size="${fontSize.toFixed(1)}" font-weight="${tier.weight}" fill="${text}">${escapeXml(name)}</text>`
-        + `</g>`;
-}
 
-/** Draws a category label with a rule running to the right edge. */
-function header(label: string, y: number, theme: ThemeName): string {
-    const { muted, border } = THEMES[theme];
-    const upper = label.toUpperCase();
-    // Letter-spaced uppercase at 12px averages about 9.2px per character.
-    const ruleStart = PADDING + upper.length * 9.2 + 12;
-    return `<text x="${PADDING}" y="${y + 14}" font-size="12" font-weight="600" letter-spacing="1.2" fill="${muted}">${escapeXml(upper)}</text>`
-        + `<line x1="${ruleStart.toFixed(1)}" x2="${TECH_STACK_WIDTH - PADDING}" y1="${y + 10}" y2="${y + 10}" stroke="${border}"/>`;
-}
-
-/**
- * Renders the tech stack image for one theme.
- *
- * @remarks
- * Each group gets a header, a row of large tiles for its core skills and a row of smaller tiles for
- * the rest. Empty groups are left out. Tiles fade in one after another, except for viewers who ask
- * for reduced motion; a renderer without CSS animation shows them at once.
- *
- * @param groups - The categories to draw, skills already filtered and ranked.
- * @param theme - Which GitHub theme the colours are for.
- * @returns A complete SVG document.
- */
-export function renderTechStack(groups: readonly SkillGroup[], theme: ThemeName): string {
-    const { muted } = THEMES[theme];
-    const tiles: PlacedTile[] = [];
-    const headers: string[] = [];
-
-    let y = 8;
-    for (const { label, skills } of groups) {
-        if (skills.length === 0) {
-            continue;
-        }
-        headers.push(header(label, y, theme));
-        y += HEADER_HEIGHT;
-        y = flow(skills.filter(isCore), CORE_TIER, y, tiles);
-        y = flow(skills.filter(s => !isCore(s)), PROFICIENT_TIER, y, tiles);
-        y += GROUP_SPACING;
-    }
-    const legendY = y + 4;
-    const height = legendY + 12;
-
-    const names = tiles.map(t => t.skill.name).join(", ");
     return [
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${TECH_STACK_WIDTH}" height="${height}" viewBox="0 0 ${TECH_STACK_WIDTH} ${height}" role="img" aria-labelledby="title">`,
-        `<title id="title">${escapeXml(`Tech stack: ${names}`)}</title>`,
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title">`,
+        `<title id="title">${escapeXml(skill.name)}</title>`,
         "<style>",
         `text { font-family: ${FONT_STACK}; }`,
-        // `backwards` applies the first keyframe only while an animation runs, so a renderer that
-        // ignores CSS animation still shows every tile.
-        ".tile { animation: tile-in 420ms ease-out backwards; }",
+        // `backwards` applies the first keyframe only while the animation runs, so a renderer that
+        // ignores CSS animation still shows the tile.
+        `.tile { animation: tile-in 420ms ease-out ${position * STAGGER_MS}ms backwards; }`,
         "@keyframes tile-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }",
         "@media (prefers-reduced-motion: reduce) { .tile { animation: none; } }",
         "</style>",
-        ...headers,
-        ...tiles.map((t, i) => tile(t, i, theme)),
-        `<text x="${TECH_STACK_WIDTH - PADDING}" y="${legendY}" text-anchor="end" font-size="11" fill="${muted}">Large tiles: core · small tiles: proficient</text>`,
+        `<g class="tile">`,
+        `<rect x="0.5" y="0.5" width="${tier.width - 1}" height="${tier.height - 1}" rx="${CORNER_RADIUS}" fill="${surface}" stroke="${border}"/>`,
+        `<g transform="translate(${(tier.width - tier.icon) / 2} ${iconTop.toFixed(1)})">${glyph(skill.name, tier.icon, theme)}</g>`,
+        `<text x="${tier.width / 2}" y="${tier.height - 14}" text-anchor="middle" font-size="${fontSize.toFixed(1)}" font-weight="${tier.weight}" fill="${text}">${escapeXml(name)}</text>`,
+        "</g>",
         "</svg>",
         "",
     ].join("\n");
