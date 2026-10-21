@@ -25,6 +25,47 @@ const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
 
 /**
+ * Sent on every request so the caller is identifiable in the site's and WakaTime's logs and in a
+ * Cloudflare rule, instead of the runtime default `Bun/<version>`.
+ */
+const REQUEST_HEADERS: Readonly<Record<string, string>> = {
+    "Accept": "application/json",
+    "User-Agent": "TimSchoenle-profile-readme (+https://github.com/TimSchoenle/TimSchoenle)",
+};
+
+/** Characters of a failed response's body quoted in the error, enough to identify an HTML block page. */
+const ERROR_BODY_PREVIEW_LENGTH = 200;
+
+/**
+ * Describes a non-2xx response in one line: status, the Cloudflare headers that say whether the
+ * edge or the origin refused, and the start of the body.
+ *
+ * @remarks
+ * `cf-mitigated: challenge` means a Cloudflare bot or WAF challenge stopped the request at the edge
+ * and the origin never saw it; `cf-ray` is the id to look the event up by in Security Events. The
+ * request URL is deliberately left out, because the WakaTime URL carries the API key.
+ *
+ * @param response - The failed response. Its body is consumed.
+ * @returns The status line, the Cloudflare headers present, and up to
+ * {@link ERROR_BODY_PREVIEW_LENGTH} characters of the body with whitespace collapsed.
+ */
+async function describeFailedResponse(response: Response): Promise<string> {
+    const parts = [`${response.status} ${response.statusText}`];
+    for (const header of ["cf-mitigated", "cf-ray", "server"]) {
+        const value = response.headers.get(header);
+        if (value) {
+            parts.push(`${header}=${value}`);
+        }
+    }
+    const body = await response.text().catch(() => "");
+    const preview = body.replaceAll(/\s+/g, " ").trim().slice(0, ERROR_BODY_PREVIEW_LENGTH);
+    if (preview) {
+        parts.push(`body: ${preview}`);
+    }
+    return parts.join(", ");
+}
+
+/**
  * Fetches the profile document the portfolio site publishes.
  *
  * @remarks
@@ -34,9 +75,9 @@ const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7
  * @throws If the endpoint answers with a non-2xx status.
  */
 async function fetchProfileData(): Promise<Profile> {
-    const response = await fetch(PROFILE_API_URL);
+    const response = await fetch(PROFILE_API_URL, { headers: REQUEST_HEADERS });
     if (!response.ok) {
-        throw new Error(`Failed to fetch profile data: ${response.statusText}`);
+        throw new Error(`Failed to fetch profile data: ${await describeFailedResponse(response)}`);
     }
     return response.json().then(data => data as Profile);
 }
@@ -52,10 +93,10 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
         throw new Error("WAKATIME_API_KEY is not defined");
     }
 
-    const response = await fetch(`${WAKATIME_API_URL}?api_key=${apiKey}`);
+    const response = await fetch(`${WAKATIME_API_URL}?api_key=${apiKey}`, { headers: REQUEST_HEADERS });
 
     if (!response.ok) {
-        throw new Error(`Failed to fetch WakaTime data: ${response.statusText}`);
+        throw new Error(`Failed to fetch WakaTime data: ${await describeFailedResponse(response)}`);
     }
     return response.json().then(data => data as WakaTime);
 }
