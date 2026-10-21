@@ -165,6 +165,7 @@ describe("renderStatsCard", () => {
         expect(statsSummary(stats)).toBe("Weekly coding stats, 13 October – 20 October 2026: 6 hrs of code, 10 hrs tracked. Java 4 hrs (66.7%), Bash 2 hrs (33.3%)");
     });
     test("formats durations like WakaTime", () => {
+        expect(formatDuration(0)).toBe("0 mins");
         expect(formatDuration(59)).toBe("<1 min");
         expect(formatDuration(60)).toBe("1 min");
         expect(formatDuration(1_620)).toBe("27 mins");
@@ -174,7 +175,9 @@ describe("renderStatsCard", () => {
     });
     test("says so when no code was tracked", () => {
         const prose = parseWakaTime({ data: { ...WAKATIME.data, languages: [WAKATIME.data.languages[0]!] } });
-        expect(renderStatsCard(prose, "light")).toContain("No code tracked this week.");
+        const card = renderStatsCard(prose, "light");
+        expect(card).toContain("No code tracked this week.");
+        expect(card).toContain(">0 mins</text>");
         expect(statsSummary(prose)).toBe("Weekly coding stats, 13 October – 20 October 2026: 10 hrs tracked.");
         const idle = parseWakaTime({ data: { ...WAKATIME.data, languages: [{ name: "Java", text: "0 secs", percent: 0, total_seconds: 0 }] } });
         expect(codeBreakdown(idle)).toEqual({ seconds: 0, languages: [], otherPercent: 0 });

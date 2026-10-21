@@ -83,7 +83,7 @@ export function codeBreakdown(stats: WakaTime): CodeBreakdown {
 export function formatDuration(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     if (minutes === 0) {
-        return "<1 min";
+        return seconds > 0 ? "<1 min" : "0 mins";
     }
     const unit = (count: number, name: string) => `${count} ${name}${count === 1 ? "" : "s"}`;
     const hours = Math.floor(minutes / 60);
