@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="106" height="90" viewBox="0 0 106 90" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="88" viewBox="0 0 104 88" role="img" aria-labelledby="title">
 <title id="title">Tailwind CSS</title>
 <style>
 text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
-.tile { animation: tile-in 420ms ease-out 40ms backwards; }
+.tile { animation: tile-in 420ms ease-out 280ms backwards; }
 @keyframes tile-in { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) { .tile { animation: none; } }
 </style>
 <g class="tile">
-<rect x="0.5" y="0.5" width="97" height="81" rx="12" fill="#161b22" stroke="#30363d"/>
-<g transform="translate(35 16.3)"><g transform="scale(1.1666666666666667)"><path fill="#06B6D4" d="M12.001,4.8c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C13.666,10.618,15.027,12,18.001,12c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C16.337,6.182,14.976,4.8,12.001,4.8z M6.001,12c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 c1.177,1.194,2.538,2.576,5.512,2.576c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C10.337,13.382,8.976,12,6.001,12z"/></g></g>
-<text x="49" y="68" text-anchor="middle" font-size="11.5" font-weight="500" fill="#e6edf3">Tailwind CSS</text>
+<rect x="0.5" y="0.5" width="95" height="79" rx="10" fill="#161b22" stroke="#30363d"/>
+<g transform="translate(32 13.0)"><g transform="scale(1.3333333333333333)"><path fill="#06B6D4" d="M12.001,4.8c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C13.666,10.618,15.027,12,18.001,12c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C16.337,6.182,14.976,4.8,12.001,4.8z M6.001,12c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 c1.177,1.194,2.538,2.576,5.512,2.576c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C10.337,13.382,8.976,12,6.001,12z"/></g></g>
+<text x="48" y="66" text-anchor="middle" font-size="12.0" font-weight="600" fill="#e6edf3">Tailwind CSS</text>
 </g>
 </svg>
