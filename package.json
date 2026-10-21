@@ -6,7 +6,8 @@
     "generate-readme": "bun run scripts/generate-readme.ts",
     "gen-types": "bun run scripts/generate-types.ts",
     "lint": "eslint scripts --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -14,6 +15,7 @@
     "eslint-plugin-jsdoc": "62.1.0",
     "eslint-plugin-tsdoc": "0.5.2",
     "quicktype-core": "23.2.6",
+    "simple-icons": "16.34.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.4"
   }
