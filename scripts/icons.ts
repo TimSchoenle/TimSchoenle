@@ -19,6 +19,8 @@ export interface Icon {
     readonly size: number;
     /** Brand colour as six hex digits without `#`, or absent when the brand publishes none. */
     readonly hex?: string;
+    /** SVG fill rule, for paths that cut holes with overlapping subpaths. Defaults to `nonzero`. */
+    readonly fillRule?: "evenodd";
 }
 
 /**
@@ -27,6 +29,10 @@ export interface Icon {
  */
 const ICON_TITLE_ALIASES: Readonly<Record<string, string>> = {
     "ArgoCD": "Argo",
+    // WakaTime language names.
+    "Bash": "GNU Bash",
+    "C#": "C Sharp",
+    "Shell Script": "GNU Bash",
     "Talos Linux": "Talos",
     "TimescaleDB": "Timescale",
 };

@@ -1,7 +1,11 @@
 /**
- * Turns the profile and WakaTime data into the text of `README.md`. Pure: no I/O, no clock.
+ * Turns the profile into the text of `README.md`. Pure: no I/O, no clock.
  *
  * @remarks
+ * The README is text around generated images: contact buttons, the tech stack, and the weekly
+ * stats card. This file writes the markup that points at them; `contact-buttons.ts`,
+ * `tech-stack.ts` and `stats-card.ts` draw them.
+ *
  * Every placeholder the template may use is a key of the map built in {@link renderReadme}.
  * {@link fillTemplate} throws on a placeholder with no value and on a value no placeholder uses,
  * so the template and this file cannot drift apart silently.
@@ -9,49 +13,34 @@
  * @packageDocumentation
  */
 
+import { BUTTON_HEIGHT, buttonWidth, contactAsset, contactLinks } from "./contact-buttons";
 import { byConfidence, skillGroups } from "./skills";
-import { TECH_STACK_ASSETS, TECH_STACK_WIDTH } from "./tech-stack";
-import type { Profile, WakaTime } from "./types";
+import { STATS_ASSET, STATS_WIDTH } from "./stats-card";
+import { TECH_STACK_ASSET, TECH_STACK_WIDTH } from "./tech-stack";
+import { themedAsset } from "./theme";
+import type { Profile } from "./types";
+
+/** What the README says about the stats card. */
+export interface StatsImage {
+    /** Alt text for the card. */
+    readonly alt: string;
+}
+
+/** An image's rendered size in pixels; either side may be left to the image's aspect ratio. */
+interface ImageSize {
+    readonly width?: number;
+    readonly height?: number;
+}
 
 /** How many skills "Ask me about" names. */
 const ASK_ME_ABOUT_COUNT = 3;
 
-const BADGE_COLOR = "24292e";
-
-/** WakaTime "languages" that are prose or configuration, not code. */
-const NON_CODE_LANGUAGES: ReadonlySet<string> = new Set([
-    "CSV", "Git Config", "INI", "JSON", "Markdown", "Other", "Text", "TOML", "XML", "YAML",
-]);
-
-/** How many WakaTime languages the stats block lists. */
-const WAKATIME_LANGUAGE_COUNT = 5;
-
-/** Bar width of the WakaTime stats block, in characters. */
-const PROGRESS_BAR_LENGTH = 25;
-
-/**
- * Encodes text for one segment of a Shields static badge path.
- *
- * @remarks
- * Shields reads `-` as the segment separator and `_` as a space, so both are doubled before
- * percent-encoding. Without this, `Cert-Manager` renders as a badge reading `Cert` in colour
- * `Manager`.
- */
-export function shieldsSegment(text: string): string {
-    return encodeURIComponent(text.replaceAll("-", "--").replaceAll("_", "__"));
-}
-
-/** Escapes the characters that end or nest markdown link and image text. */
-function escapeLinkText(text: string): string {
-    return text.replaceAll(/[\\[\]]/g, "\\$&");
-}
-
-/** Percent-encodings for the two destination delimiters `encodeURIComponent` does not encode. */
+/** Percent-encodings for the two URL delimiters `encodeURIComponent` does not encode. */
 const PAREN_ENCODINGS: Readonly<Record<string, string>> = { "(": "%28", ")": "%29" };
 
 /**
- * Percent-encodes the characters that end a markdown link destination or split it into a title.
- * The result is the same URL to a browser.
+ * Percent-encodes the characters that could end a link destination or split it into a title. The
+ * result is the same URL to a browser.
  */
 export function escapeLinkDestination(href: string): string {
     // encodeURIComponent leaves parentheses alone, so those two are spelled out; everything else
@@ -59,9 +48,30 @@ export function escapeLinkDestination(href: string): string {
     return href.replaceAll(/[()<>\s]/g, char => PAREN_ENCODINGS[char] ?? encodeURIComponent(char));
 }
 
-/** Renders a badge reading `label` that links to `href`. */
-function linkBadge(label: string, href: string): string {
-    return `[![${escapeLinkText(label)}](https://img.shields.io/badge/${shieldsSegment(label)}-${BADGE_COLOR}?style=for-the-badge)](${escapeLinkDestination(href)})`;
+/** Escapes text for a double-quoted HTML attribute. */
+function escapeHtmlAttribute(text: string): string {
+    return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+}
+
+/**
+ * A `<picture>` that shows the dark or light image `asset` to match the viewer's GitHub theme.
+ *
+ * @remarks
+ * The `<img>` is what renderers without `<picture>` support show, and its alt text is what screen
+ * readers announce.
+ *
+ * @param asset - The asset name, as `themedAsset` takes it.
+ * @param alt - Alt text, unescaped.
+ * @param size - The image's rendered size, so the page does not shift while it loads.
+ * @returns The `<picture>` element on one line.
+ */
+function themedPicture(asset: string, alt: string, size: ImageSize): string {
+    const dimensions = [
+        size.width === undefined ? "" : ` width="${size.width}"`,
+        size.height === undefined ? "" : ` height="${size.height}"`,
+    ].join("");
+    return `<picture><source media="(prefers-color-scheme: dark)" srcset="${themedAsset(asset, "dark")}">`
+        + `<img alt="${escapeHtmlAttribute(alt)}" src="${themedAsset(asset, "light")}"${dimensions}></picture>`;
 }
 
 /** Joins items as English prose: `a`, `a and b`, `a, b and c`. */
@@ -72,38 +82,21 @@ function joinProse(items: readonly string[]): string {
     return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 }
 
-/** The contact row: website, LinkedIn when the profile has one, and email. */
-function contactBadges(profile: Profile): string {
-    const badges = [linkBadge("Website", profile.website)];
-    if (profile.socials.linkedin) {
-        badges.push(linkBadge("LinkedIn", profile.socials.linkedin));
-    }
-    badges.push(linkBadge("Email", `mailto:${profile.email}`));
-    return badges.join(" ");
+/** The contact buttons, each its own link, one per line. */
+function contactButtons(profile: Profile): string {
+    return contactLinks(profile)
+        .map(link => {
+            const href = escapeHtmlAttribute(escapeLinkDestination(link.href));
+            const picture = themedPicture(contactAsset(link), link.label, { width: buttonWidth(link), height: BUTTON_HEIGHT });
+            return `<a href="${href}">${picture}</a>`;
+        })
+        .join("\n");
 }
 
-/** Escapes text for a double-quoted HTML attribute. */
-function escapeHtmlAttribute(text: string): string {
-    return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-}
-
-/**
- * The tech stack image, switching with the viewer's GitHub theme.
- *
- * @remarks
- * The `<img>` is what renderers without `<picture>` support show, and its alt text is what screen
- * readers announce, so it names every skill the image draws.
- */
+/** The tech stack image. Its alt text names every skill the image draws. */
 function techStackImage(profile: Profile): string {
     const names = skillGroups(profile, true).flatMap(g => g.skills.map(s => s.name));
-    const alt = escapeHtmlAttribute(`Tech stack: ${names.join(", ")}`);
-    return [
-        "<picture>",
-        `  <source media="(prefers-color-scheme: dark)" srcset="${TECH_STACK_ASSETS.dark}">`,
-        `  <source media="(prefers-color-scheme: light)" srcset="${TECH_STACK_ASSETS.light}">`,
-        `  <img alt="${alt}" src="${TECH_STACK_ASSETS.light}" width="${TECH_STACK_WIDTH}">`,
-        "</picture>",
-    ].join("\n");
+    return themedPicture(TECH_STACK_ASSET, `Tech stack: ${names.join(", ")}`, { width: TECH_STACK_WIDTH });
 }
 
 /** Lists the threshold-passing skills the image leaves out, as a collapsed block, or nothing when there are none. */
@@ -116,45 +109,6 @@ function alsoWorkedWith(profile: Profile): string {
         return "";
     }
     return `<details>\n<summary>Also worked with</summary>\n\n${lines.join("<br>\n")}\n\n</details>`;
-}
-
-/** Pads `text` to `width`, or cuts it to `width` with a trailing ellipsis. */
-function fitWidth(text: string, width: number): string {
-    return text.length > width ? `${text.substring(0, width - 1)}…` : text.padEnd(width);
-}
-
-/** Draws `percent` (0 to 100) as a bar {@link PROGRESS_BAR_LENGTH} characters wide. */
-function progressBar(percent: number): string {
-    const filled = Math.round((PROGRESS_BAR_LENGTH * percent) / 100);
-    return "█".repeat(filled) + "░".repeat(PROGRESS_BAR_LENGTH - filled);
-}
-
-/**
- * Formats a week of WakaTime data as a fenced `txt` block.
- *
- * @remarks
- * Prose and configuration entries ({@link NON_CODE_LANGUAGES}) are left out of the list but not
- * out of the total, so each percentage stays the share of all tracked time.
- */
-function wakaTimeStats(stats: WakaTime): string {
-    const { start, end, human_readable_total, languages } = stats.data;
-    const format = (date: Date | string) =>
-        new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
-
-    const rows = languages
-        .filter(lang => !NON_CODE_LANGUAGES.has(lang.name))
-        .slice(0, WAKATIME_LANGUAGE_COUNT)
-        .map(lang => `${fitWidth(lang.name, 20)}  ${fitWidth(lang.text, 14)}   ${progressBar(lang.percent)}   ${lang.percent.toFixed(2).padStart(5)} %`);
-
-    return [
-        "```txt",
-        `From: ${format(start)} - To: ${format(end)}`,
-        "",
-        `Total Time: ${human_readable_total}`,
-        "",
-        ...rows,
-        "```",
-    ].join("\n");
 }
 
 /**
@@ -185,10 +139,10 @@ export function fillTemplate(template: string, values: Readonly<Record<string, s
  *
  * @param template - The contents of `templates/README.md.template`.
  * @param profile - The validated profile document.
- * @param wakaTime - Seven days of WakaTime stats, or `null` when that call failed.
+ * @param stats - The stats card to reference, or `null` to leave a comment in its place.
  * @returns The README text, ending in exactly one newline.
  */
-export function renderReadme(template: string, profile: Profile, wakaTime: WakaTime | null): string {
+export function renderReadme(template: string, profile: Profile, stats: StatsImage | null): string {
     const topSkills = byConfidence(skillGroups(profile, true).flatMap(g => g.skills))
         .slice(0, ASK_ME_ABOUT_COUNT)
         .map(s => `**${s.name}**`);
@@ -198,10 +152,12 @@ export function renderReadme(template: string, profile: Profile, wakaTime: WakaT
         TITLE: profile.title,
         LOCATION: profile.location,
         ASK_ME_ABOUT: joinProse(topSkills),
-        CONTACT_BADGES: contactBadges(profile),
+        CONTACT_BUTTONS: contactButtons(profile),
         TECH_STACK: techStackImage(profile),
         ALSO_WORKED_WITH: alsoWorkedWith(profile),
-        WAKATIME_STATS: wakaTime ? wakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->",
+        WAKATIME_STATS: stats
+            ? themedPicture(STATS_ASSET, stats.alt, { width: STATS_WIDTH })
+            : "<!-- WakaTime stats unavailable -->",
     });
 
     // An empty section leaves a run of blank lines behind.

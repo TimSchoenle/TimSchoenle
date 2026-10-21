@@ -2,15 +2,13 @@
 
 **Senior Software Developer** based in Germany. Ask me about **Java**, **Spring Boot** and **SQL**.
 
-[![Website](https://img.shields.io/badge/Website-24292e?style=for-the-badge)](https://tim-schoenle.de) [![LinkedIn](https://img.shields.io/badge/LinkedIn-24292e?style=for-the-badge)](https://www.linkedin.com/in/tim-schoenle) [![Email](https://img.shields.io/badge/Email-24292e?style=for-the-badge)](mailto:contact@tim-schoenle.de)
+<a href="https://tim-schoenle.de"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contact-website-dark.svg"><img alt="Website" src="assets/contact-website-light.svg" width="119" height="40"></picture></a>
+<a href="https://www.linkedin.com/in/tim-schoenle"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contact-linkedin-dark.svg"><img alt="LinkedIn" src="assets/contact-linkedin-light.svg" width="128" height="40"></picture></a>
+<a href="mailto:contact@tim-schoenle.de"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/contact-email-dark.svg"><img alt="Email" src="assets/contact-email-light.svg" width="102" height="40"></picture></a>
 
 ## Tech Stack
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/tech-stack-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/tech-stack-light.svg">
-  <img alt="Tech stack: Java, SQL, Rust, WebAssembly (WASM), TypeScript, Kotlin, Spring Boot, PaperMC, gRPC, Next.js, React, Tailwind CSS, Dioxus, Axum, Node.js, Docker, Kubernetes, ArgoCD, PostgreSQL, Helm, Talos Linux, Linux, TimescaleDB, MongoDB, Redis" src="assets/tech-stack-light.svg" width="840">
-</picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/tech-stack-dark.svg"><img alt="Tech stack: Java, SQL, Rust, WebAssembly (WASM), TypeScript, Kotlin, Spring Boot, PaperMC, gRPC, Next.js, React, Tailwind CSS, Dioxus, Axum, Node.js, Docker, Kubernetes, ArgoCD, PostgreSQL, Helm, Talos Linux, Linux, TimescaleDB, MongoDB, Redis" src="assets/tech-stack-light.svg" width="840"></picture>
 
 <details>
 <summary>Also worked with</summary>
@@ -23,12 +21,4 @@
 
 ## Weekly Stats
 
-```txt
-From: 13 October 2026 - To: 20 October 2026
-
-Total Time: 40 hrs 35 mins
-
-Java                  8 hrs 51 mins    █████░░░░░░░░░░░░░░░░░░░░   21.80 %
-Python                3 hrs 47 mins    ██░░░░░░░░░░░░░░░░░░░░░░░    9.31 %
-Bash                  3 hrs 3 mins     ██░░░░░░░░░░░░░░░░░░░░░░░    7.51 %
-```
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 13 October – 20 October 2026: 40 hrs 35 mins tracked. Java 8 hrs 51 mins, Python 3 hrs 47 mins, Bash 3 hrs 3 mins" src="assets/stats-light.svg" width="840"></picture>

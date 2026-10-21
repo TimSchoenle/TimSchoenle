@@ -1,9 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import { findIcon } from "./icons";
 import { parseProfile } from "./profile";
-import { escapeLinkDestination, fillTemplate, renderReadme, shieldsSegment } from "./render";
+import { buttonWidth, contactLinks, renderContactButton } from "./contact-buttons";
+import { escapeLinkDestination, fillTemplate, renderReadme } from "./render";
 import { skillGroups } from "./skills";
-import { contrastRatio, iconColour, renderTechStack, TECH_STACK_ASSETS } from "./tech-stack";
+import { codeLanguages, renderStatsCard, statsSummary } from "./stats-card";
+import { renderTechStack } from "./tech-stack";
+import { brandColour, contrastRatio, themedAsset } from "./theme";
 import { RenderArea, type Language, type Profile } from "./types";
 import { parseWakaTime } from "./wakatime";
 
@@ -34,8 +37,9 @@ const WAKATIME = {
         end: "2026-10-20T23:59:59Z",
         human_readable_total: "10 hrs",
         languages: [
-            { name: "Markdown", text: "5 hrs", percent: 50 },
-            { name: "Java", text: "5 hrs", percent: 50 },
+            { name: "Markdown", text: "4 hrs", percent: 40 },
+            { name: "Java", text: "4 hrs", percent: 40 },
+            { name: "Bash", text: "2 hrs", percent: 20 },
         ],
     },
 };
@@ -53,10 +57,6 @@ describe("fillTemplate", () => {
 });
 
 describe("escaping", () => {
-    test("shields segments double the separators", () => {
-        expect(shieldsSegment("Cert-Manager")).toBe("Cert--Manager");
-        expect(shieldsSegment("wasm_bindgen")).toBe("wasm__bindgen");
-    });
     test("link destinations cannot be closed early", () => {
         expect(escapeLinkDestination("https://a.example/) [x](https://b.example")).not.toMatch(/[()\s]/);
         expect(escapeLinkDestination("https://a.example/ ")).toEndWith("%C2%A0");
@@ -88,12 +88,14 @@ describe("icons", () => {
         expect(findIcon("Java")?.size).toBe(128);
         expect(findIcon("ArgoCD")?.title).toBe("Argo");
         expect(findIcon("WebAssembly (WASM)")?.title).toBe("WebAssembly");
+        expect(findIcon("Bash")?.title).toBe("GNU Bash");
         expect(findIcon("Made<Up>&Co")).toBeUndefined();
     });
     test("a brand colour too close to the tile falls back to the text colour", () => {
         const rust = findIcon("Rust")!;
-        expect(iconColour(rust, "light")).toBe("#000000");
-        expect(iconColour(rust, "dark")).not.toBe("#000000");
+        expect(brandColour(rust, "light", "text")).toBe("#000000");
+        expect(brandColour(rust, "dark", "text")).not.toBe("#000000");
+        expect(brandColour(undefined, "dark", "accent")).toMatch(/^#[0-9a-f]{6}$/);
         expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 5);
     });
 });
@@ -122,18 +124,51 @@ describe("renderTechStack", () => {
     });
 });
 
+describe("renderStatsCard", () => {
+    const stats = parseWakaTime(WAKATIME);
+
+    test("lists code languages only, but keeps their share of all time", () => {
+        expect(codeLanguages(stats).map(l => l.name)).toEqual(["Java", "Bash"]);
+        const svg = renderStatsCard(stats, "dark");
+        expect(svg).toContain(">Java</text>");
+        expect(svg).toContain(">40.0%</text>");
+        expect(svg).not.toContain("Markdown");
+    });
+    test("summarises the week for alt text", () => {
+        expect(statsSummary(stats)).toBe("Weekly coding stats, 13 October – 20 October 2026: 10 hrs tracked. Java 4 hrs, Bash 2 hrs");
+    });
+    test("says so when no code was tracked", () => {
+        const prose = parseWakaTime({ data: { ...WAKATIME.data, languages: [WAKATIME.data.languages[0]!] } });
+        expect(renderStatsCard(prose, "light")).toContain("No code tracked this week.");
+    });
+});
+
+describe("contact buttons", () => {
+    test("LinkedIn appears only when the profile has it", () => {
+        expect(contactLinks(PROFILE).map(l => l.id)).toEqual(["website", "email"]);
+        const withLinkedIn = { ...PROFILE, socials: { ...PROFILE.socials, linkedin: "https://linkedin.example/in/ada" } };
+        expect(contactLinks(withLinkedIn).map(l => l.id)).toEqual(["website", "linkedin", "email"]);
+    });
+    test("the SVG width matches the width the README declares", () => {
+        for (const link of contactLinks(PROFILE)) {
+            expect(renderContactButton(link, "light")).toContain(`width="${buttonWidth(link)}"`);
+        }
+    });
+});
+
 describe("renderReadme", () => {
     test("fills the real template", async () => {
         const template = await Bun.file("templates/README.md.template").text();
-        const readme = renderReadme(template, PROFILE, parseWakaTime(WAKATIME));
+        const readme = renderReadme(template, PROFILE, { alt: "Weekly <stats>" });
         expect(readme).not.toContain("{{");
-        expect(readme).toContain(`srcset="${TECH_STACK_ASSETS.dark}"`);
+        expect(readme).toContain(`srcset="${themedAsset("tech-stack", "dark")}"`);
+        expect(readme).toContain(`<a href="mailto:contact@example.com"><picture>`);
+        expect(readme).toContain('alt="Weekly &lt;stats&gt;"');
         expect(readme).toContain('alt="Tech stack: Java, Rust, Spring Boot, Made&lt;Up&gt;&amp;Co"');
         expect(readme).toContain("Ask me about **Java**, **Spring Boot** and **Rust**.");
-        expect(readme).not.toContain("Markdown  ");
     });
     test("marks the stats section when WakaTime is unavailable", async () => {
         const template = await Bun.file("templates/README.md.template").text();
-        expect(renderReadme(template, PROFILE, null)).toContain("<!-- WakaTime API unavailable -->");
+        expect(renderReadme(template, PROFILE, null)).toContain("<!-- WakaTime stats unavailable -->");
     });
 });

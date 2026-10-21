@@ -9,7 +9,7 @@ the technology and do not imply endorsement.
 
 ## devicon
 
-Java logo, from [devicon](https://github.com/devicons/devicon) 2.17.0.
+Java and LinkedIn logos, from [devicon](https://github.com/devicons/devicon) 2.17.0.
 
 ```
 The MIT License (MIT)
