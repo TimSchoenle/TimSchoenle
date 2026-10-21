@@ -6,20 +6,18 @@
  * `.github/workflows/update-profile.yml` runs it at midnight UTC and commits whatever changed, so
  * an edit made to `README.md` by hand lasts until the next run.
  *
- * A skill reaches a badge row by being marked `resume` in the profile document at
- * `tim-schoenle.de/api/v1/profile` and scoring at least 0.55 confidence, so the rows change
- * without an edit to this script or the template. WakaTime needs a key; the profile API does not.
- * Its section is allowed to fail: a week of tracked time is worth less than the rest of the page.
- *
- * Layout is not in this file. A new section on the page means a placeholder in the template and a
- * matching `replaceAll` in {@link main}. Nothing checks that the two agree, and a placeholder with
- * no `replaceAll` is committed to the profile verbatim.
+ * This file fetches and writes; `render.ts` decides what the page says. Skills, contact links and
+ * "Ask me about" all come from the profile document at `tim-schoenle.de/api/v1/profile`, so the page
+ * changes without an edit here. WakaTime needs a key; the profile API does not. Its section is
+ * allowed to fail: a week of tracked time is worth less than the rest of the page.
  *
  * @packageDocumentation
  */
 
 import { file, write } from "bun";
-import {type Profile, RenderArea, type WakaTime} from "./types";
+import { parseProfile } from "./profile";
+import { renderReadme } from "./render";
+import type { Profile, WakaTime } from "./types";
 
 const PROFILE_API_URL = "https://tim-schoenle.de/api/v1/profile";
 const WAKATIME_API_URL = "https://wakatime.com/api/v1/users/current/stats/last_7_days";
@@ -68,18 +66,14 @@ async function describeFailedResponse(response: Response): Promise<string> {
 /**
  * Fetches the profile document the portfolio site publishes.
  *
- * @remarks
- * The body is cast, not validated. A field the API stops sending reaches the profile page as the
- * literal text `undefined`.
- *
- * @throws If the endpoint answers with a non-2xx status.
+ * @throws If the endpoint answers with a non-2xx status, or the body fails {@link parseProfile}.
  */
 async function fetchProfileData(): Promise<Profile> {
     const response = await fetch(PROFILE_API_URL, { headers: REQUEST_HEADERS });
     if (!response.ok) {
         throw new Error(`Failed to fetch profile data: ${await describeFailedResponse(response)}`);
     }
-    return response.json().then(data => data as Profile);
+    return parseProfile(await response.json());
 }
 
 /**
@@ -102,89 +96,6 @@ async function fetchWakaTimeData(): Promise<WakaTime> {
 }
 
 /**
- * Draws `percent`, on a scale of 0 to 100, as a bar exactly `length` characters wide, `█` filled
- * and `░` empty.
- *
- * @remarks
- * The filled count is rounded, so at the default width a language under 2 percent draws an empty bar.
- */
-function generateProgressBar(percent: number, length: number = 25): string {
-    const filledChars = Math.round((length * percent) / 100);
-    const emptyChars = length - filledChars;
-
-    const full = '█';
-    const empty = '░';
-
-    return full.repeat(filledChars) + empty.repeat(emptyChars);
-}
-
-/**
- * Skill names whose Simple Icons slug is not their own name lowercased with the spaces removed.
- * Shields draws a badge without a logo, and without an error, for a slug it does not know.
- */
-const LOGO_SLUG_OVERRIDES: Readonly<Record<string, string>> = {
-    "ArgoCD": "argo",
-    "Talos Linux": "talos",
-    "TimescaleDB": "timescale",
-};
-
-/**
- * Derives the Shields `logo` slug for a skill badge.
- *
- * @remarks
- * A parenthesised qualifier is dropped first, so `WebAssembly (WASM)` looks up `webassembly`. A
- * name with no Simple Icons entry at all, such as `Java` or `Axum`, still renders as a plain badge.
- */
-function logoSlug(name: string): string {
-    const override = LOGO_SLUG_OVERRIDES[name];
-    if (override) {
-        return override;
-    }
-    return name.replace(/\s*\(.*\)\s*$/, "").toLowerCase().replaceAll(/\s+/g, "");
-}
-
-/** Formats `stats.data` as a fenced `txt` block: the date range, the total, then the first five languages. */
-function formatWakaTimeStats(stats: WakaTime): string {
-    const { start, end, human_readable_total, languages } = stats.data;
-
-    const startDate = new Date(start).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    const endDate = new Date(end).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    let output = "```txt\n";
-    output += `From: ${startDate} - To: ${endDate}\n\n`;
-    output += `Total Time: ${human_readable_total}\n\n`;
-
-    const topLanguages = languages.slice(0, 5);
-
-    for (const lang of topLanguages) {
-        // Both branches leave the field at the same width, so every bar starts at the same column
-        // however long the language name is.
-        let name = lang.name;
-        if (name.length > 20) {
-            name = name.substring(0, 19) + "…";
-        }
-        else {
-            name = name.padEnd(20);
-        }
-
-        let text = lang.text;
-        if (text.length > 14) {
-            text = text.substring(0, 13) + "…";
-        }
-        else {
-            text = text.padEnd(14);
-        }
-
-        const bar = generateProgressBar(lang.percent);
-        const percent = lang.percent.toFixed(2).padStart(5);
-        output += `${name}  ${text}   ${bar}   ${percent} %\n`;
-    }
-
-    output += "```";
-    return output;
-}
-
-/**
  * Writes `README.md` from the template, the profile, and the WakaTime section when that call
  * answered.
  *
@@ -193,55 +104,22 @@ function formatWakaTimeStats(stats: WakaTime): string {
  * runs from the repository root and nowhere else. A WakaTime failure leaves an HTML comment where
  * its section would be; a profile failure aborts before `README.md` is touched.
  *
- * @throws If the profile cannot be fetched, or `templates/README.md.template` is missing.
+ * @throws If the profile cannot be fetched or fails validation, `templates/README.md.template` is
+ * missing, or the template and `render.ts` disagree on placeholders.
  */
 async function main() {
     console.log("Fetching data...");
     const [profile, wakaTime] = await Promise.all([
         fetchProfileData(),
-        fetchWakaTimeData().catch(e => {
+        fetchWakaTimeData().catch((e: unknown) => {
             console.error("Error fetching WakaTime:", e);
             return null;
-        })
+        }),
     ]);
 
-    if (!profile) {
-        throw new Error("Could not load profile data");
-    }
-
-    console.log("Processing template...");
+    console.log("Rendering...");
     const template = await file("templates/README.md.template").text();
-
-    const confidenceThreshold = 0.55;
-    const processSkills = (skills: { name: string; confidence: number; renderArea: RenderArea[] }[]) =>
-        skills
-            .filter(s => s.confidence >= confidenceThreshold)
-            .filter(s => s.renderArea.includes(RenderArea.Resume))
-            .sort((a, b) => b.confidence - a.confidence)
-            .map(s => {
-                return `![${s.name}](https://img.shields.io/badge/${encodeURIComponent(s.name)}-24292e?style=flat-square&logo=${encodeURIComponent(logoSlug(s.name))}&logoColor=white)`;
-            })
-            .join(" ");
-
-    const languages = processSkills(profile.skills.languages);
-    const frameworks = processSkills(profile.skills.frameworks);
-    const infrastructure = processSkills(profile.skills.infrastructure);
-    const wakaTimeStats = wakaTime ? formatWakaTimeStats(wakaTime) : "<!-- WakaTime API unavailable -->";
-    // Reads the unfiltered list, so the winner can be a language no badge above it shows.
-    const topSkill = profile.skills.languages.toSorted((a, b) => b.confidence - a.confidence)[0]?.name || "Java";
-
-    const readme = template
-        .replaceAll("{{NAME}}", profile.name)
-        .replaceAll("{{EMAIL}}", profile.email)
-        .replaceAll("{{GITHUB_URL}}", profile.socials.github)
-        .replaceAll("{{ASK_ME_ABOUT}}", topSkill)
-        .replaceAll("{{SKILLS_LANGUAGES}}", languages)
-        .replaceAll("{{SKILLS_FRAMEWORKS}}", frameworks)
-        .replaceAll("{{SKILLS_INFRASTRUCTURE}}", infrastructure)
-        .replaceAll("{{WAKATIME_STATS}}", wakaTimeStats)
-        .replaceAll("{{TITLE}}", profile.title)
-        .replaceAll("{{LOCATION}}", profile.location)
-        .replaceAll("{{WEBSITE}}", profile.website);
+    const readme = renderReadme(template, profile, wakaTime);
 
     console.log("Writing README.md...");
     await write("README.md", readme);

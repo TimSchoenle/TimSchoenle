@@ -1,11 +1,8 @@
-# Hi, I'm {{NAME}}
+# {{FULL_NAME}}
 
-I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
+**{{TITLE}}** based in {{LOCATION}}. Ask me about {{ASK_ME_ABOUT}}.
 
-- 👨‍💻 All of my projects are available at [{{GITHUB_URL}}]({{GITHUB_URL}})
-- 💬 Ask me about **{{ASK_ME_ABOUT}}**
-- 📫 How to reach me **{{EMAIL}}**
-- 🌐 Check out my portfolio at **[{{WEBSITE}}]({{WEBSITE}})**
+{{CONTACT_BADGES}}
 
 ## Tech Stack
 
@@ -20,6 +17,8 @@ I'm currently working as a **{{TITLE}}** in **{{LOCATION}}**.
 **Infrastructure & Tools**
 
 {{SKILLS_INFRASTRUCTURE}}
+
+{{ALSO_WORKED_WITH}}
 
 ## Weekly Stats
 
