@@ -11,6 +11,14 @@
 
 import type { WakaTime } from "./types";
 
+/** Throws naming `path` unless `value` is a string `Date` can parse. */
+function assertDate(value: unknown, path: string): void {
+    assertString(value, path);
+    if (Number.isNaN(Date.parse(value as string))) {
+        throw new TypeError(`WakaTime field ${path} is not a date`);
+    }
+}
+
 /** Throws naming `path` unless `value` is a string. */
 function assertString(value: unknown, path: string): void {
     if (typeof value !== "string") {
@@ -32,8 +40,8 @@ export function parseWakaTime(data: unknown): WakaTime {
     }
 
     const { start, end, human_readable_total, languages } = stats as Record<string, unknown>;
-    assertString(start, "data.start");
-    assertString(end, "data.end");
+    assertDate(start, "data.start");
+    assertDate(end, "data.end");
     assertString(human_readable_total, "data.human_readable_total");
     if (!Array.isArray(languages)) {
         throw new TypeError("WakaTime field data.languages is not an array");
@@ -42,8 +50,10 @@ export function parseWakaTime(data: unknown): WakaTime {
         const lang = (entry ?? {}) as Record<string, unknown>;
         assertString(lang.name, `data.languages[${index}].name`);
         assertString(lang.text, `data.languages[${index}].text`);
-        if (typeof lang.percent !== "number" || !Number.isFinite(lang.percent)) {
-            throw new TypeError(`WakaTime field data.languages[${index}].percent is not a number`);
+        // The progress bar repeats a character by a count derived from this; outside 0..100 that
+        // count goes negative and String.prototype.repeat throws.
+        if (typeof lang.percent !== "number" || !(lang.percent >= 0 && lang.percent <= 100)) {
+            throw new TypeError(`WakaTime field data.languages[${index}].percent is not a number from 0 to 100`);
         }
     });
 
