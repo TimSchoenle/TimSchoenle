@@ -50,10 +50,9 @@ export function parseWakaTime(data: unknown): WakaTime {
         const lang = (entry ?? {}) as Record<string, unknown>;
         assertString(lang.name, `data.languages[${index}].name`);
         assertString(lang.text, `data.languages[${index}].text`);
-        // The progress bar repeats a character by a count derived from this; outside 0..100 that
-        // count goes negative and String.prototype.repeat throws.
-        if (typeof lang.percent !== "number" || !(lang.percent >= 0 && lang.percent <= 100)) {
-            throw new TypeError(`WakaTime field data.languages[${index}].percent is not a number from 0 to 100`);
+        // Shares are computed from this; a negative or non-finite value would skew every bar.
+        if (typeof lang.total_seconds !== "number" || !(lang.total_seconds >= 0 && Number.isFinite(lang.total_seconds))) {
+            throw new TypeError(`WakaTime field data.languages[${index}].total_seconds is not a finite number of at least 0`);
         }
     });
 

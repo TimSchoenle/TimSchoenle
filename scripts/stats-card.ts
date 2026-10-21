@@ -10,7 +10,7 @@
 
 import { findIcon } from "./icons";
 import { brandColour, escapeXml, FONT_STACK, iconGlyph, THEMES, type ThemeName } from "./theme";
-import type { Category, WakaTime } from "./types";
+import type { WakaTime } from "./types";
 
 /** Asset name of the stats images, for `themedAsset`. */
 export const STATS_ASSET = "stats";
@@ -18,9 +18,9 @@ export const STATS_ASSET = "stats";
 /** Intrinsic width in pixels, the same as the tech stack image so both scale to the same size. */
 export const STATS_WIDTH = 840;
 
-/** WakaTime "languages" that are prose or configuration, not code. */
+/** WakaTime "languages" that are prose, configuration or diff viewing, not code. */
 const NON_CODE_LANGUAGES: ReadonlySet<string> = new Set([
-    "CSV", "Git Config", "INI", "JSON", "Markdown", "Other", "Text", "TOML", "XML", "YAML",
+    "CSV", "Diff", "Git Config", "INI", "JSON", "Markdown", "Other", "Text", "TOML", "XML", "YAML",
 ]);
 
 /** How many languages the card lists. */
@@ -36,15 +36,59 @@ const SUMMARY_Y = 96;
 const SUMMARY_HEIGHT = 10;
 const FIRST_ROW_Y = SUMMARY_Y + SUMMARY_HEIGHT + 30;
 
+/** One listed language and its share of coding time. */
+export interface LanguageShare {
+    readonly name: string;
+    /** WakaTime's own rendering of the time, such as `8 hrs 51 mins`. */
+    readonly text: string;
+    /** Share of all coding time, from 0 to 100. */
+    readonly percent: number;
+}
+
+/** The week's coding time and how it splits across languages. */
+export interface CodeBreakdown {
+    /** Seconds spent in code languages, listed or not. Zero when nothing was coded. */
+    readonly seconds: number;
+    /** At most {@link LANGUAGE_COUNT} languages, in WakaTime's order (most time first). */
+    readonly languages: readonly LanguageShare[];
+    /** Share of coding time in code languages too small to be listed, from 0 to 100. */
+    readonly otherPercent: number;
+}
+
 /**
- * The languages the card lists: code only, at most {@link LANGUAGE_COUNT}, in WakaTime's order.
+ * Splits the week's coding time across languages.
  *
  * @remarks
- * Prose and configuration are left out of the list but not out of the total, so each percentage
- * stays the share of all tracked time.
+ * Prose and configuration are left out of the list and out of the denominator, so the listed
+ * shares and the unlisted remainder add up to 100%. The headline total of all tracked time is
+ * shown separately.
  */
-export function codeLanguages(stats: WakaTime): Category[] {
-    return stats.data.languages.filter(lang => !NON_CODE_LANGUAGES.has(lang.name)).slice(0, LANGUAGE_COUNT);
+export function codeBreakdown(stats: WakaTime): CodeBreakdown {
+    const code = stats.data.languages.filter(lang => !NON_CODE_LANGUAGES.has(lang.name) && lang.total_seconds > 0);
+    const seconds = code.reduce((sum, lang) => sum + lang.total_seconds, 0);
+    if (seconds === 0) {
+        return { seconds: 0, languages: [], otherPercent: 0 };
+    }
+    const share = (part: number) => (part / seconds) * 100;
+    const listed = code.slice(0, LANGUAGE_COUNT);
+    const listedSeconds = listed.reduce((sum, lang) => sum + lang.total_seconds, 0);
+    return {
+        seconds,
+        languages: listed.map(lang => ({ name: lang.name, text: lang.text, percent: share(lang.total_seconds) })),
+        otherPercent: share(seconds - listedSeconds),
+    };
+}
+
+/** Formats a duration the way WakaTime does, such as `16 hrs 5 mins`, `1 hr` or `27 mins`. */
+export function formatDuration(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    if (minutes === 0) {
+        return "<1 min";
+    }
+    const unit = (count: number, name: string) => `${count} ${name}${count === 1 ? "" : "s"}`;
+    const hours = Math.floor(minutes / 60);
+    const rest = minutes % 60;
+    return [hours > 0 ? unit(hours, "hr") : "", rest > 0 ? unit(rest, "min") : ""].filter(Boolean).join(" ");
 }
 
 /** Formats a WakaTime timestamp as `13 October`, or `13 October 2026` with the year. */
@@ -65,12 +109,15 @@ function dateRange(stats: WakaTime): string {
 /**
  * One sentence describing the card, for its `<title>` and the README alt text.
  *
- * @returns For example `Weekly coding stats, 13 October – 20 October 2026: 40 hrs 35 mins tracked. Java 8 hrs 51 mins`.
+ * @returns For example `Weekly coding stats, 13 October – 20 October 2026: 16 hrs 33 mins of code, 40 hrs 35 mins tracked. Java 8 hrs 51 mins (53.5%)`.
  */
 export function statsSummary(stats: WakaTime): string {
-    const languages = codeLanguages(stats).map(lang => `${lang.name} ${lang.text}`).join(", ");
-    const base = `Weekly coding stats, ${dateRange(stats)}: ${stats.data.human_readable_total} tracked.`;
-    return languages ? `${base} ${languages}` : base;
+    const { seconds, languages } = codeBreakdown(stats);
+    const total = stats.data.human_readable_total;
+    const tracked = seconds > 0 ? `${formatDuration(seconds)} of code, ${total} tracked.` : `${total} tracked.`;
+    const base = `Weekly coding stats, ${dateRange(stats)}: ${tracked}`;
+    const listed = languages.map(lang => `${lang.name} ${lang.text} (${lang.percent.toFixed(1)}%)`).join(", ");
+    return listed ? `${base} ${listed}` : base;
 }
 
 /** The colour a language's bar and logo are drawn in. */
@@ -78,21 +125,29 @@ function languageColour(name: string, theme: ThemeName): string {
     return brandColour(findIcon(name), theme, "accent");
 }
 
-/** Draws the stacked bar: each listed language's share of all tracked time, in order. */
-function summaryBar(languages: readonly Category[], theme: ThemeName): string {
+/**
+ * Draws the stacked bar across the full width: each listed language's share of coding time, in
+ * order, then the unlisted code languages as one muted segment.
+ */
+function summaryBar(breakdown: CodeBreakdown, theme: ThemeName): string {
     const width = STATS_WIDTH - 2 * INSET;
+    const segments = [
+        ...breakdown.languages.map(lang => ({ percent: lang.percent, fill: languageColour(lang.name, theme), opacity: 1 })),
+        { percent: breakdown.otherPercent, fill: THEMES[theme].muted, opacity: 0.5 },
+    ];
     let x = INSET;
-    return languages.map((lang, i) => {
-        const segment = (width * lang.percent) / 100;
+    return segments.filter(segment => segment.percent > 0).map((segment, i) => {
+        const span = (width * segment.percent) / 100;
         // A 2px gap separates segments; a sliver too thin for that is drawn at zero width.
-        const rect = `<rect class="grow" style="animation-delay:${i * 60}ms" x="${x.toFixed(1)}" y="${SUMMARY_Y}" width="${Math.max(segment - 2, 0).toFixed(1)}" height="${SUMMARY_HEIGHT}" rx="3" fill="${languageColour(lang.name, theme)}"/>`;
-        x += segment;
+        const opacity = segment.opacity < 1 ? ` fill-opacity="${segment.opacity}"` : "";
+        const rect = `<rect class="grow" style="animation-delay:${i * 60}ms" x="${x.toFixed(1)}" y="${SUMMARY_Y}" width="${Math.max(span - 2, 0).toFixed(1)}" height="${SUMMARY_HEIGHT}" rx="3" fill="${segment.fill}"${opacity}/>`;
+        x += span;
         return rect;
     }).join("\n");
 }
 
 /** Draws one language row: logo, name, bar, time and percentage. */
-function languageRow(lang: Category, index: number, theme: ThemeName): string {
+function languageRow(lang: LanguageShare, index: number, theme: ThemeName): string {
     const { text, muted, track } = THEMES[theme];
     const y = FIRST_ROW_Y + index * ROW_HEIGHT;
     const colour = languageColour(lang.name, theme);
@@ -125,9 +180,10 @@ function languageRow(lang: Category, index: number, theme: ThemeName): string {
  */
 export function renderStatsCard(stats: WakaTime, theme: ThemeName): string {
     const { surface, border, text, muted } = THEMES[theme];
-    const languages = codeLanguages(stats);
+    const breakdown = codeBreakdown(stats);
+    const { languages } = breakdown;
     const body = languages.length > 0
-        ? [summaryBar(languages, theme), ...languages.map((lang, i) => languageRow(lang, i, theme))]
+        ? [summaryBar(breakdown, theme), ...languages.map((lang, i) => languageRow(lang, i, theme))]
         : [`<text x="${INSET}" y="${FIRST_ROW_Y - 10}" font-size="14" fill="${muted}">No code tracked this week.</text>`];
     const height = FIRST_ROW_Y + Math.max(languages.length - 1, 0) * ROW_HEIGHT + 30;
 
@@ -147,8 +203,8 @@ export function renderStatsCard(stats: WakaTime, theme: ThemeName): string {
         `<rect x="0.5" y="0.5" width="${STATS_WIDTH - 1}" height="${height - 1}" rx="14" fill="${surface}" stroke="${border}"/>`,
         `<text x="${INSET}" y="40" font-size="12" font-weight="600" letter-spacing="1.2" fill="${muted}">LAST 7 DAYS</text>`,
         `<text x="${INSET}" y="66" font-size="15" fill="${text}">${escapeXml(dateRange(stats))}</text>`,
-        `<text x="${STATS_WIDTH - INSET}" y="44" text-anchor="end" font-size="28" font-weight="700" fill="${text}">${escapeXml(stats.data.human_readable_total)}</text>`,
-        `<text x="${STATS_WIDTH - INSET}" y="66" text-anchor="end" font-size="12" fill="${muted}">tracked in total</text>`,
+        `<text x="${STATS_WIDTH - INSET}" y="44" text-anchor="end" font-size="28" font-weight="700" fill="${text}">${escapeXml(formatDuration(breakdown.seconds))}</text>`,
+        `<text x="${STATS_WIDTH - INSET}" y="66" text-anchor="end" font-size="12" fill="${muted}">of code, ${escapeXml(stats.data.human_readable_total)} tracked in total</text>`,
         ...body,
         "</svg>",
         "",

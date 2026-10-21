@@ -4,7 +4,7 @@ import { parseProfile } from "./profile";
 import { buttonWidth, contactLinks, renderContactButton } from "./contact-buttons";
 import { escapeLinkDestination, fillTemplate, renderReadme } from "./render";
 import { skillGroups } from "./skills";
-import { codeLanguages, renderStatsCard, statsSummary } from "./stats-card";
+import { codeBreakdown, formatDuration, renderStatsCard, statsSummary } from "./stats-card";
 import { assertUniqueSlugs, renderSkillTile, skillSlug, tileRows, tileSize } from "./tech-stack";
 import { brandColour, contrastRatio, themedAsset } from "./theme";
 import { RenderArea, type Language, type Profile } from "./types";
@@ -37,9 +37,9 @@ const WAKATIME = {
         end: "2026-10-20T23:59:59Z",
         human_readable_total: "10 hrs",
         languages: [
-            { name: "Markdown", text: "4 hrs", percent: 40 },
-            { name: "Java", text: "4 hrs", percent: 40 },
-            { name: "Bash", text: "2 hrs", percent: 20 },
+            { name: "Markdown", text: "4 hrs", percent: 40, total_seconds: 14_400 },
+            { name: "Java", text: "4 hrs", percent: 40, total_seconds: 14_400 },
+            { name: "Bash", text: "2 hrs", percent: 20, total_seconds: 7_200 },
         ],
     },
 };
@@ -67,9 +67,11 @@ describe("validation", () => {
     test("parseProfile names the missing field", () => {
         expect(() => parseProfile({ ...PROFILE, title: undefined })).toThrow("title");
     });
-    test("parseWakaTime rejects out-of-range percentages and bad dates", () => {
+    test("parseWakaTime rejects bad durations and bad dates", () => {
         const lang = { name: "Java", text: "1 hr" };
-        expect(() => parseWakaTime({ data: { ...WAKATIME.data, languages: [{ ...lang, percent: -5 }] } })).toThrow("percent");
+        for (const total_seconds of [-5, Number.NaN, Number.POSITIVE_INFINITY, "60"]) {
+            expect(() => parseWakaTime({ data: { ...WAKATIME.data, languages: [{ ...lang, total_seconds }] } })).toThrow("total_seconds");
+        }
         expect(() => parseWakaTime({ data: { ...WAKATIME.data, start: "not-a-date" } })).toThrow("start");
         expect(parseWakaTime(WAKATIME)).toBe(WAKATIME as never);
     });
@@ -134,19 +136,48 @@ describe("skill tiles", () => {
 describe("renderStatsCard", () => {
     const stats = parseWakaTime(WAKATIME);
 
-    test("lists code languages only, but keeps their share of all time", () => {
-        expect(codeLanguages(stats).map(l => l.name)).toEqual(["Java", "Bash"]);
+    test("lists code languages only, as shares of coding time", () => {
+        const { seconds, languages, otherPercent } = codeBreakdown(stats);
+        expect(seconds).toBe(21_600);
+        expect(languages.map(l => l.name)).toEqual(["Java", "Bash"]);
+        expect(languages[0]!.percent).toBeCloseTo(200 / 3, 10);
+        expect(languages[1]!.percent).toBeCloseTo(100 / 3, 10);
+        expect(otherPercent).toBe(0);
         const svg = renderStatsCard(stats, "dark");
         expect(svg).toContain(">Java</text>");
-        expect(svg).toContain(">40.0%</text>");
+        expect(svg).toContain(">66.7%</text>");
+        expect(svg).toContain(">6 hrs</text>");
+        expect(svg).toContain(">of code, 10 hrs tracked in total</text>");
         expect(svg).not.toContain("Markdown");
+        expect(svg).not.toContain("fill-opacity");
+    });
+    test("folds unlisted code languages into one remainder that fills the bar", () => {
+        const many = ["Java", "Bash", "Kotlin", "Python", "Go", "Rust"]
+            .map(name => ({ name, text: "1 hr", percent: 10, total_seconds: 3_600 }));
+        const breakdown = codeBreakdown(parseWakaTime({ data: { ...WAKATIME.data, languages: many } }));
+        expect(breakdown.languages.map(l => l.name)).toEqual(["Java", "Bash", "Kotlin", "Python", "Go"]);
+        const total = breakdown.languages.reduce((sum, l) => sum + l.percent, breakdown.otherPercent);
+        expect(total).toBeCloseTo(100, 10);
+        expect(breakdown.otherPercent).toBeCloseTo(100 / 6, 10);
+        expect(renderStatsCard(parseWakaTime({ data: { ...WAKATIME.data, languages: many } }), "light")).toContain('fill-opacity="0.5"');
     });
     test("summarises the week for alt text", () => {
-        expect(statsSummary(stats)).toBe("Weekly coding stats, 13 October – 20 October 2026: 10 hrs tracked. Java 4 hrs, Bash 2 hrs");
+        expect(statsSummary(stats)).toBe("Weekly coding stats, 13 October – 20 October 2026: 6 hrs of code, 10 hrs tracked. Java 4 hrs (66.7%), Bash 2 hrs (33.3%)");
+    });
+    test("formats durations like WakaTime", () => {
+        expect(formatDuration(59)).toBe("<1 min");
+        expect(formatDuration(60)).toBe("1 min");
+        expect(formatDuration(1_620)).toBe("27 mins");
+        expect(formatDuration(3_600)).toBe("1 hr");
+        expect(formatDuration(3_660)).toBe("1 hr 1 min");
+        expect(formatDuration(58_500)).toBe("16 hrs 15 mins");
     });
     test("says so when no code was tracked", () => {
         const prose = parseWakaTime({ data: { ...WAKATIME.data, languages: [WAKATIME.data.languages[0]!] } });
         expect(renderStatsCard(prose, "light")).toContain("No code tracked this week.");
+        expect(statsSummary(prose)).toBe("Weekly coding stats, 13 October – 20 October 2026: 10 hrs tracked.");
+        const idle = parseWakaTime({ data: { ...WAKATIME.data, languages: [{ name: "Java", text: "0 secs", percent: 0, total_seconds: 0 }] } });
+        expect(codeBreakdown(idle)).toEqual({ seconds: 0, languages: [], otherPercent: 0 });
     });
 });
 
