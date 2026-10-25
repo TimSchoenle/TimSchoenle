@@ -64,4 +64,4 @@
 
 ## Weekly Stats
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 15 October – 22 October 2026: 13 hrs 41 mins of code, 37 hrs 43 mins tracked. Java 6 hrs 45 mins (49.4%), Python 3 hrs 8 mins (22.9%), Bash 2 hrs 39 mins (19.4%), Kotlin 25 mins (3.0%), PowerShell 16 mins (2.0%)" src="assets/stats-light.svg" width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 16 October – 23 October 2026: 12 hrs 37 mins of code, 35 hrs 31 mins tracked. Java 5 hrs 7 mins (40.6%), Bash 3 hrs 31 mins (27.9%), Python 2 hrs 39 mins (21.1%), PowerShell 28 mins (3.7%), Kotlin 23 mins (3.0%)" src="assets/stats-light.svg" width="100%"></picture>
