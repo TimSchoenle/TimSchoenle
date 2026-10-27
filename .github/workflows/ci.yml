@@ -16,26 +16,25 @@ jobs:
   lint:
     name: Lint and Typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
-      contents: read
+      contents: read # to checkout code
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
+      # Installs the Bun `packageManager` in package.json names and runs `bun install
+      # --frozen-lockfile`. The node_modules cache is written only on pushes to main; pull requests
+      # read it and never save.
       - name: Setup Bun
-        uses: TimSchoenle/actions/actions/bun/setup-cached@e16a1e466faf8ec751b26289c1898143a253269f # tag=actions-bun-setup-cached-v1.1.11
-        with:
-          bun-version: latest
-
-      - name: Install
-        run: bun install --frozen-lockfile
+        uses: TimSchoenle/actions/actions/bun/setup-cached@9d5cb31939ace7a3d3d7f452052724337c65f153 # tag=actions-bun-setup-cached-v2.0.0
 
       # The doc comment gate. eslint.config.mjs holds it and --max-warnings 0, set in the lint
       # script, is what makes jsdoc/require-jsdoc fail the run rather than print.
