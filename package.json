@@ -2,6 +2,7 @@
   "name": "timschoenle",
   "type": "module",
   "private": true,
+  "packageManager": "bun@1.4.4",
   "scripts": {
     "generate-readme": "bun run scripts/generate-readme.ts",
     "gen-types": "bun run scripts/generate-types.ts",

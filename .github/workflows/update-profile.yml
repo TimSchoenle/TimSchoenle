@@ -5,45 +5,63 @@ on:
     - cron: "0 0 * * *" # every day at midnight
   workflow_dispatch:
 
+# One run at a time, and a dispatch while the nightly run is going waits rather than cancelling it:
+# both commit to `main` through the API, which rejects a commit whose parent has moved.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
   update-readme:
     name: Update Profile
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # to checkout code
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@e3f713f2d8f53843e71c69a996d56f51aa9adfb9 # v2.14.1
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
         with:
           egress-policy: audit
 
-      - name: Generate Bot Token
-        id: generate_token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
-        with:
-          app-id: ${{ secrets.ACTIONS_MAINTENANCE_APP_ID }}
-          private-key: ${{ secrets.ACTIONS_MAINTENANCE_PRIVATE_KEY }}
-          permission-contents: write
-
+      # The branch tip, not the event SHA: a run that waited in the concurrency queue has to build on
+      # the commit the previous run made.
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.ref }}
           persist-credentials: false
-          token: ${{ steps.generate_token.outputs.token }}
 
+      # Bun's version comes from `packageManager` in package.json, so it moves only through a
+      # reviewed change. No node_modules cache: this job holds secrets, and a restored cache is code
+      # it would run.
       - name: Setup Bun
-        uses: TimSchoenle/actions/actions/bun/setup-cached@e16a1e466faf8ec751b26289c1898143a253269f # tag=actions-bun-setup-cached-v1.1.11
+        uses: TimSchoenle/actions/actions/bun/setup-cached@9d5cb31939ace7a3d3d7f452052724337c65f153 # tag=actions-bun-setup-cached-v2.0.0
         with:
-          bun-version: latest
+          cache-mode: none
 
       - name: Generate README
         run: bun run generate-readme
         env:
           WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
 
+      # Minted only once the generator has finished, so the write token never exists while the
+      # generator or its dependencies run.
+      - name: Generate Bot Token
+        id: generate_token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ secrets.ACTIONS_MAINTENANCE_APP_ID }}
+          private-key: ${{ secrets.ACTIONS_MAINTENANCE_PRIVATE_KEY }}
+          permission-contents: write
+
+      # The generator writes `README.md` and the images under `assets/`, and nothing else.
       - name: Commit and Push if changed
         id: auto-commit
-        uses: TimSchoenle/actions/actions/common/commit-changes@7e8fd61045447d321c5139eea8f2e2b766333f8b # tag=actions-common-commit-changes-v1.5.3
+        uses: TimSchoenle/actions/actions/common/commit-changes@8da2713994ba2b5f542e7e3334db287b1e22854a # tag=actions-common-commit-changes-v1.5.9
         with:
           commit_message: "docs: update readme"
+          file_pattern: "README.md assets"
           token: ${{ steps.generate_token.outputs.token }}
