@@ -26,9 +26,12 @@ jobs:
         with:
           egress-policy: audit
 
+      # The branch tip, not the event SHA: a run that waited in the concurrency queue has to build on
+      # the commit the previous run made.
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: ${{ github.ref }}
           persist-credentials: false
 
       # Bun's version comes from `packageManager` in package.json, so it moves only through a
