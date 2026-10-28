@@ -64,4 +64,4 @@
 
 ## Weekly Stats
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats from the last successful update" src="assets/stats-light.svg" width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 19 October – 26 October 2026: 8 hrs 7 mins of code, 22 hrs 50 mins tracked. Bash 2 hrs 24 mins (29.6%), Java 2 hrs 15 mins (27.8%), Python 1 hr 25 mins (17.5%), Docker 1 hr 14 mins (15.3%), Kotlin 13 mins (2.7%)" src="assets/stats-light.svg" width="100%"></picture>
