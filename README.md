@@ -64,4 +64,4 @@
 
 ## Weekly Stats
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 25 October – 1 November 2026: 0 secs tracked." src="assets/stats-light.svg" width="100%"></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg"><img alt="Weekly coding stats, 26 October – 1 November 2026: 0 secs tracked." src="assets/stats-light.svg" width="100%"></picture>

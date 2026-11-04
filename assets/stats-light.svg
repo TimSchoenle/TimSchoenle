@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="840" height="166" viewBox="0 0 840 166" role="img" aria-labelledby="title">
-<title id="title">Weekly coding stats, 25 October – 1 November 2026: 0 secs tracked.</title>
+<title id="title">Weekly coding stats, 26 October – 1 November 2026: 0 secs tracked.</title>
 <style>
 text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
 .grow { transform-box: fill-box; transform-origin: left center; animation: grow 700ms cubic-bezier(.2,.8,.2,1) backwards; }
@@ -10,7 +10,7 @@ text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", 
 </style>
 <rect x="0.5" y="0.5" width="839" height="165" rx="14" fill="#f6f8fa" stroke="#d0d7de"/>
 <text x="28" y="40" font-size="12" font-weight="600" letter-spacing="1.2" fill="#59636e">LAST 7 DAYS</text>
-<text x="28" y="66" font-size="15" fill="#1f2328">25 October – 1 November 2026</text>
+<text x="28" y="66" font-size="15" fill="#1f2328">26 October – 1 November 2026</text>
 <text x="812" y="44" text-anchor="end" font-size="28" font-weight="700" fill="#1f2328">0 mins</text>
 <text x="812" y="66" text-anchor="end" font-size="12" fill="#59636e">of code, 0 secs tracked in total</text>
 <text x="28" y="126" font-size="14" fill="#59636e">No code tracked this week.</text>
