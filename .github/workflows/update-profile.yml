@@ -16,6 +16,14 @@ permissions: {}
 jobs:
   update-readme:
     name: Update Profile
+    # A dispatch can name any branch; the guard skips the job there instead of failing on the
+    # environment's branch rule.
+    if: github.ref == 'refs/heads/main'
+    # The maintenance App key lives in this environment, which only `main` may use, rather than at
+    # repository level where a workflow on any branch could read it.
+    environment:
+      name: ci
+      deployment: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
