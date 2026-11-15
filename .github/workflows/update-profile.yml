@@ -46,7 +46,7 @@ jobs:
       # reviewed change. No node_modules cache: this job holds secrets, and a restored cache is code
       # it would run.
       - name: Setup Bun
-        uses: TimSchoenle/actions/actions/bun/setup-cached@9d5cb31939ace7a3d3d7f452052724337c65f153 # tag=actions-bun-setup-cached-v2.0.0
+        uses: TimSchoenle/actions/actions/bun/setup-cached@49acdef9979f343817ec2a85ddd25e5f34befc8b # tag=actions-bun-setup-cached-v4.0.0
         with:
           cache-mode: none
 
@@ -68,7 +68,7 @@ jobs:
       # The generator writes `README.md` and the images under `assets/`, and nothing else.
       - name: Commit and Push if changed
         id: auto-commit
-        uses: TimSchoenle/actions/actions/common/commit-changes@8da2713994ba2b5f542e7e3334db287b1e22854a # tag=actions-common-commit-changes-v1.5.9
+        uses: TimSchoenle/actions/actions/common/commit-changes@0b3967d3d992d12aa88da1f8facf412b162d5ab2 # tag=actions-common-commit-changes-v3.1.1
         with:
           commit_message: "docs: update readme"
           file_pattern: "README.md assets"

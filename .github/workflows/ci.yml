@@ -34,7 +34,7 @@ jobs:
       # --frozen-lockfile`. The node_modules cache is written only on pushes to main; pull requests
       # read it and never save.
       - name: Setup Bun
-        uses: TimSchoenle/actions/actions/bun/setup-cached@9d5cb31939ace7a3d3d7f452052724337c65f153 # tag=actions-bun-setup-cached-v2.0.0
+        uses: TimSchoenle/actions/actions/bun/setup-cached@49acdef9979f343817ec2a85ddd25e5f34befc8b # tag=actions-bun-setup-cached-v4.0.0
 
       # The doc comment gate. eslint.config.mjs holds it and --max-warnings 0, set in the lint
       # script, is what makes jsdoc/require-jsdoc fail the run rather than print.
